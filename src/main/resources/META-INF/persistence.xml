@@ -2,7 +2,7 @@
              version="3.0">
 
     <persistence-unit name="blockchainPU">
-        <class>es.jmcenador.blockchain.model.usuario.Usuario</class>
+        <class>es.jmcenram.blockchain.model.usuario.Usuario</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
