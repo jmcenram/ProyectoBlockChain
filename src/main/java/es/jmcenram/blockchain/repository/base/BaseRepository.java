@@ -16,6 +16,10 @@ public abstract class BaseRepository<T extends EntidadBase> {
         this.clazz = clazz;
     }
 
+    protected EntityManager getEntityManager() {
+        return JPAUtil.getEntityManager();
+    }
+
     private String getEntityName() {
         Entity entity = clazz.getAnnotation(Entity.class);
         if (entity != null && entity.name() != null && !entity.name().isBlank()) {
@@ -26,7 +30,7 @@ public abstract class BaseRepository<T extends EntidadBase> {
 
     public T save(T entity) {
 
-        EntityManager em = JPAUtil.getEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
 
         try {
@@ -56,10 +60,9 @@ public abstract class BaseRepository<T extends EntidadBase> {
 
     public T findById(Long id) {
 
-        EntityManager em = JPAUtil.getEntityManager();
+        EntityManager em = getEntityManager();
 
         try {
-
             return em.createQuery(
                             "SELECT e FROM " + getEntityName() +
                                     " e WHERE e.id = :id AND e.fechaBorrado IS NULL",
@@ -75,10 +78,9 @@ public abstract class BaseRepository<T extends EntidadBase> {
 
     public List<T> findAll() {
 
-        EntityManager em = JPAUtil.getEntityManager();
+        EntityManager em = getEntityManager();
 
         try {
-
             return em.createQuery(
                     "SELECT e FROM " + getEntityName() +
                             " e WHERE e.fechaBorrado IS NULL",
@@ -92,7 +94,7 @@ public abstract class BaseRepository<T extends EntidadBase> {
 
     public void softDelete(Long id) {
 
-        EntityManager em = JPAUtil.getEntityManager();
+        EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
 
         try {
@@ -119,5 +121,13 @@ public abstract class BaseRepository<T extends EntidadBase> {
         } finally {
             em.close();
         }
+    }
+
+    public T update(T entity) {
+        EntityManager em = getEntityManager();
+        em.getTransaction().begin();
+        T merged = em.merge(entity);
+        em.getTransaction().commit();
+        return merged;
     }
 }

@@ -2,6 +2,7 @@ package es.jmcenram.blockchain.model.registroblockchain;
 
 import es.jmcenram.blockchain.model.base.EntidadBase;
 import es.jmcenram.blockchain.model.documento.Documento;
+import es.jmcenram.blockchain.model.documento.EstadoDocumento;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "registro_blockchain")
 public class RegistroBlockchain extends EntidadBase {
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "documento_id")
     private Documento documento;
 
@@ -29,5 +30,9 @@ public class RegistroBlockchain extends EntidadBase {
 
     @Column(name = "bloque_number")
     private Long bloqueNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoBlockchain estado;
 
 }

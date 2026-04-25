@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="es.jmcenram.blockchain.controller.MainController"
+            style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+
+    <!-- 🔝 TOP BAR -->
+    <top>
+        <HBox alignment="CENTER_RIGHT"
+              spacing="10"
+              style="-fx-padding: 12 20;">
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Label text="Usuario:"
+                   style="-fx-text-fill: #94a3b8;"/>
+
+            <Label fx:id="lblUsuario"
+                   style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+
+            <Button text="Logout"
+                    onAction="#logout"
+                    style="
+                        -fx-background-color: rgba(255,255,255,0.08);
+                        -fx-text-fill: white;
+                        -fx-background-radius: 8;
+                    "/>
+        </HBox>
+    </top>
+
+    <!-- 🎯 CONTENIDO -->
+    <center>
+        <StackPane alignment="CENTER">
+
+            <!-- TARJETA FIJA -->
+            <VBox alignment="CENTER"
+                  spacing="25"
+
+                  prefWidth="400" prefHeight="400"
+                  minWidth="400"  minHeight="400"
+                  maxWidth="400"  maxHeight="400"
+
+                  style="
+                      -fx-background-color: rgba(30,41,59,0.9);
+                      -fx-background-radius: 18;
+                      -fx-padding: 30;
+                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 25, 0.4, 0, 8);
+                  ">
+
+                <!-- TÍTULO -->
+                <Label text="Sistema Blockchain"
+                       style="
+                           -fx-text-fill: white;
+                           -fx-font-size: 26px;
+                           -fx-font-weight: bold;
+                       "/>
+
+                <!-- SUBTÍTULO -->
+                <Label text="Gestión y validación de documentos"
+                       style="
+                           -fx-text-fill: #94a3b8;
+                           -fx-font-size: 13px;
+                       "/>
+
+                <!-- BOTÓN DOCUMENTOS -->
+                <Button text="📄 Gestión de documentos"
+                        prefWidth="260"
+                        prefHeight="45"
+                        onAction="#irADocumentos"
+                        style="
+                            -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
+                            -fx-text-fill: white;
+                            -fx-font-weight: bold;
+                            -fx-background-radius: 12;
+                        "/>
+
+                <!-- BOTÓN CONFIG -->
+                <Button text="⚙ Configuración blockchain"
+                        prefWidth="260"
+                        prefHeight="45"
+                        onAction="#irAConfiguracion"
+                        style="
+                            -fx-background-color: rgba(255,255,255,0.08);
+                            -fx-text-fill: white;
+                            -fx-background-radius: 12;
+                        "/>
+                <!-- BOTÓN CONFIG -->
+                <Button text="👤 Registrar usuario"
+                        prefWidth="260"
+                        prefHeight="45"
+                        onAction="#irARegistroUsuario"
+                        style="
+                            -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
+                            -fx-text-fill: white;
+                            -fx-font-weight: bold;
+                            -fx-background-radius: 12;
+                        "/>
+
+            </VBox>
+
+        </StackPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="15"
+      alignment="TOP_CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="es.jmcenram.blockchain.controller.RegistroUsuarioController"
+      stylesheets="@/css/dark.css"
+      style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- HEADER -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+
+        <Button text="⬅ Volver"
+                onAction="#volver"
+                styleClass="btn-secondary"/>
+
+        <Label text="Registrar usuario"
+               styleClass="title"/>
+    </HBox>
+
+    <!-- CAMPOS -->
+    <Label text="RPC URL" styleClass="label"/>
+
+    <TextField fx:id="fieldNombre"
+               prefWidth="350"
+               promptText="Nombre"
+               styleClass="input"/>
+
+    <TextField fx:id="fieldEmail"
+               prefWidth="350"
+               promptText="Email"
+               styleClass="input"/>
+
+    <HBox spacing="10" alignment="CENTER">
+
+        <Button text="📧 Enviar"
+                onAction="#enviar"
+                styleClass="btn-primary"/>
+
+    </HBox>
+
+
+</VBox>

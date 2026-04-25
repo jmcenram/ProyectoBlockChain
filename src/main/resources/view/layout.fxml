@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<StackPane fx:id="root"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.LayoutController"
+           style="-fx-background-color: transparent;">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <BorderPane style="
+            -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);
+            -fx-background-radius: 15;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20,0,0,6);">
+
+        <!-- TOP BAR (INTEGRADA) -->
+        <top>
+            <HBox fx:id="topBar"
+                  prefHeight="35"
+                  alignment="CENTER_RIGHT"
+                  style="
+                      -fx-background-color: transparent;
+                      -fx-padding: 5 10;">
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- MINIMIZAR -->
+                <Button fx:id="btnMinimizar" text="—" onAction="#minimizar"
+                        style="
+                            -fx-background-color: transparent;
+                            -fx-text-fill: #94a3b8;
+                            -fx-font-size: 14;
+                        "/>
+
+                <!-- MAXIMIZAR -->
+                <Button fx:id="btnAmpliar" text="⬜" onAction="#maximizar"
+                        style="
+                            -fx-background-color: transparent;
+                            -fx-text-fill: #94a3b8;
+                        "/>
+
+                <!-- CERRAR -->
+                <Button fx:id="btnCerrar" text="✕"
+                        onAction="#cerrar"
+                        style="
+                            -fx-background-color: transparent;
+                            -fx-text-fill: #f87171;
+                            -fx-font-weight: bold;
+                        "/>
+
+            </HBox>
+        </top>
+
+        <!-- CONTENIDO -->
+        <center>
+            <StackPane fx:id="content"
+                       style="-fx-background-color: transparent;"/>
+        </center>
+
+    </BorderPane>
+
+</StackPane>

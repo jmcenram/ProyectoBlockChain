@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="15"
+      alignment="TOP_CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="es.jmcenram.blockchain.controller.ConfiguracionController"
+      stylesheets="@/css/dark.css"
+      style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- HEADER -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+
+        <Button text="⬅ Volver"
+                onAction="#volver"
+                styleClass="btn-secondary"/>
+
+        <Label text="Configuración Blockchain"
+               styleClass="title"/>
+    </HBox>
+
+    <!-- CAMPOS -->
+    <Label text="RPC URL" styleClass="label"/>
+
+    <TextField fx:id="rpcUrlField"
+               prefWidth="350"
+               promptText="http://127.0.0.1:8545"
+               styleClass="input"/>
+
+    <!-- CLAVE PRIVADA -->
+    <Label text="Private Key" styleClass="label"/>
+
+    <PasswordField fx:id="privateKeyField"
+                   prefWidth="350"
+                   promptText="Clave privada"
+                   styleClass="input"/>
+
+    <!-- CLAVE DE CONTRATO -->
+    <Label text="Contract Address" styleClass="label"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+
+        <TextField fx:id="contractAddressField"
+                   prefWidth="260"
+                   editable="true"
+                   promptText="Se autocompleta al conectar"
+                   styleClass="input"/>
+
+        <Button text="⚙ Generar"
+                onAction="#generarContrato"
+                styleClass="btn-secondary"/>
+    </HBox>
+
+    <!-- RUTA -->
+    <Label text="Fichero de configuración" styleClass="label"/>
+
+    <TextField fx:id="rutaConfigField"
+               prefWidth="350"
+               editable="false"
+               promptText="No seleccionado"
+               styleClass="input"/>
+
+    <!-- BOTONES -->
+    <HBox spacing="10" alignment="CENTER">
+
+        <Button text="💾 Guardar"
+                onAction="#guardar"
+                styleClass="btn-primary"/>
+
+        <Button text="📂 Cargar"
+                onAction="#cargarConfig"
+                styleClass="btn-secondary"/>
+    </HBox>
+
+    <!-- ESTADO -->
+    <Label fx:id="lblEstado"
+           wrapText="true"
+           text="Estado: no conectado"
+           styleClass="label"/>
+
+</VBox>

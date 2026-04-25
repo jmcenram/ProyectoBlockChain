@@ -25,7 +25,7 @@ public class Documento extends EntidadBase {
     private String tipo;
 
 
-    @Column(nullable = false, length = 64)
+    @Column(nullable = true, length = 64)
     private String hash;
 
     @Column(name = "ruta_archivo", nullable = false)
@@ -46,6 +46,18 @@ public class Documento extends EntidadBase {
     @JoinColumn(name = "emisor_id", nullable = false)
     private Usuario emisor;
 
-    @OneToMany(mappedBy = "documento")
+    @OneToMany(mappedBy = "documento", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<RegistroBlockchain> registros = new ArrayList<>();
+
+    @Lob
+    @Column(name = "contenido", columnDefinition = "LONGBLOB")
+    private byte[] contenido;
+
+    private transient boolean procesando;
+
+    @PrePersist
+    public void prePersist() {
+        this.setFechaCreacion(LocalDateTime.now());
+
+    }
 }

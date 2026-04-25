@@ -35,7 +35,7 @@ public class UsuarioRol {
     private LocalDateTime fechaBorrado;
 
     // 👇 OBLIGATORIO PARA JPA
-    protected UsuarioRol() {
+    public UsuarioRol() {
     }
 
     public UsuarioRol(Usuario usuario, Rol rol) {

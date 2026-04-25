@@ -1,114 +1,204 @@
 package es.jmcenram.blockchain;
-import es.jmcenram.blockchain.model.apikey.ApiKey;
-import es.jmcenram.blockchain.model.auditoria.Auditoria;
-import es.jmcenram.blockchain.model.documento.Documento;
-import es.jmcenram.blockchain.model.documento.EstadoDocumento;
-import es.jmcenram.blockchain.model.registroblockchain.RegistroBlockchain;
-import es.jmcenram.blockchain.model.rol.Rol;
-import es.jmcenram.blockchain.model.usuario.Usuario;
-import es.jmcenram.blockchain.model.usuariorol.UsuarioRol;
-import es.jmcenram.blockchain.repository.apikey.ApiKeyRepository;
-import es.jmcenram.blockchain.repository.auditoria.AuditoriaRepository;
-import es.jmcenram.blockchain.repository.documento.DocumentoRepository;
-import es.jmcenram.blockchain.repository.registroblockchain.RegistroBlockchainRepository;
-import es.jmcenram.blockchain.repository.rol.RolRepository;
-import es.jmcenram.blockchain.repository.usuario.UsuarioRepository;
-import es.jmcenram.blockchain.repository.usuariorol.UsuarioRolRepository;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import es.jmcenram.blockchain.config.BlockchainConfig;
+import es.jmcenram.blockchain.config.demo.GanacheStarter;
+import es.jmcenram.blockchain.service.blockchain.BlockchainService;
+import es.jmcenram.blockchain.controller.LayoutController;
 
-public class Main {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.Cursor;
+import javafx.scene.image.Image;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
+        System.out.println("🔗 Inicializando nodo blockchain...");
+        GanacheStarter.startIfNotRunning();
+        System.out.println("✅ Nodo listo");
+
+        // =========================
+        // 🔗 CONFIG BLOCKCHAIN
+        // =========================
+        BlockchainConfig config = new BlockchainConfig();
+        config.setRpcUrl("http://127.0.0.1:8545");
+        config.setPrivateKey("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
+        config.setContractAddress("");
+
+        BlockchainService.init(config);
+        System.out.println("✅ BlockchainService inicializado");
+
+        // =========================
+        // 🔥 VENTANA TRANSPARENTE
+        // =========================
+        stage.initStyle(StageStyle.TRANSPARENT);
+
+        // =========================
+        // 🎨 LAYOUT
+        // =========================
+        FXMLLoader layoutLoader = new FXMLLoader(
+                getClass().getResource("/view/layout.fxml")
+        );
+
+        Parent layoutRoot = layoutLoader.load();
+        LayoutController layoutController = layoutLoader.getController();
+
+        Parent loginView = FXMLLoader.load(
+                getClass().getResource("/view/login.fxml")
+        );
+
+        layoutController.setContent(loginView);
+
+        // =========================
+        // 🖥️ ESCENA
+        // =========================
+        Scene scene = new Scene(layoutRoot);
+
+        // 🔥 IMPORTANTE: evitar artefactos
+        scene.setFill(null);
+
+        // =========================
+        // 🔥 CLIP PARA BORDES REDONDEADOS (SOLUCIÓN)
+        // =========================
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
+
+        clip.widthProperty().bind(scene.widthProperty());
+        clip.heightProperty().bind(scene.heightProperty());
+
+        layoutRoot.setClip(clip);
+
+        // 🔥 navegación global
+        scene.setUserData(layoutController);
+
+        // 🔥 RESIZE
+        addResizeSupport(stage, scene);
+
+        // =========================
+        // 🪟 CONFIG VENTANA
+        // =========================
+        stage.setScene(scene);
+
+        stage.setWidth(600);
+        stage.setHeight(600);
+
+        stage.setMinWidth(400);
+        stage.setMinHeight(600);
+
+        stage.centerOnScreen();
+
+        stage.getIcons().add(
+                new Image(getClass().getResourceAsStream("/img/icono.png"))
+        );
+
+        stage.setOnCloseRequest(event ->
+                System.out.println("🛑 Cerrando aplicación...")
+        );
+
+        stage.show();
+    }
+
+    // =========================
+    // 🔥 RESIZE MANUAL
+    // =========================
+    private void addResizeSupport(Stage stage, Scene scene) {
+
+        final int BORDER = 6;
+
+        scene.setOnMouseMoved(e -> {
+
+            double x = e.getSceneX();
+            double y = e.getSceneY();
+
+            double width = scene.getWidth();
+            double height = scene.getHeight();
+
+            if (x < BORDER && y < BORDER) {
+                scene.setCursor(Cursor.NW_RESIZE);
+            } else if (x > width - BORDER && y < BORDER) {
+                scene.setCursor(Cursor.NE_RESIZE);
+            } else if (x < BORDER && y > height - BORDER) {
+                scene.setCursor(Cursor.SW_RESIZE);
+            } else if (x > width - BORDER && y > height - BORDER) {
+                scene.setCursor(Cursor.SE_RESIZE);
+            } else if (x < BORDER) {
+                scene.setCursor(Cursor.W_RESIZE);
+            } else if (x > width - BORDER) {
+                scene.setCursor(Cursor.E_RESIZE);
+            } else if (y > height - BORDER) {
+                scene.setCursor(Cursor.S_RESIZE);
+            } else {
+                scene.setCursor(Cursor.DEFAULT);
+            }
+        });
+
+        scene.setOnMouseDragged(e -> {
+
+            if (scene.getCursor() == Cursor.DEFAULT) return;
+
+            double x = e.getScreenX();
+            double y = e.getScreenY();
+
+            double minW = 500;
+            double minH = 500;
+
+            if (scene.getCursor() == Cursor.E_RESIZE) {
+                double newWidth = x - stage.getX();
+                if (newWidth >= minW) stage.setWidth(newWidth);
+            } else if (scene.getCursor() == Cursor.W_RESIZE) {
+                double newWidth = stage.getX() - x + stage.getWidth();
+                if (newWidth >= minW) {
+                    stage.setX(x);
+                    stage.setWidth(newWidth);
+                }
+            } else if (scene.getCursor() == Cursor.S_RESIZE) {
+                double newHeight = y - stage.getY();
+                if (newHeight >= minH) stage.setHeight(newHeight);
+            } else if (scene.getCursor() == Cursor.SE_RESIZE) {
+                double newWidth = x - stage.getX();
+                double newHeight = y - stage.getY();
+                if (newWidth >= minW) stage.setWidth(newWidth);
+                if (newHeight >= minH) stage.setHeight(newHeight);
+            } else if (scene.getCursor() == Cursor.SW_RESIZE) {
+                double newWidth = stage.getX() - x + stage.getWidth();
+                double newHeight = y - stage.getY();
+                if (newWidth >= minW) {
+                    stage.setX(x);
+                    stage.setWidth(newWidth);
+                }
+                if (newHeight >= minH) stage.setHeight(newHeight);
+            } else if (scene.getCursor() == Cursor.NE_RESIZE) {
+                double newWidth = x - stage.getX();
+                double newHeight = stage.getY() - y + stage.getHeight();
+                if (newWidth >= minW) stage.setWidth(newWidth);
+                if (newHeight >= minH) {
+                    stage.setY(y);
+                    stage.setHeight(newHeight);
+                }
+            } else if (scene.getCursor() == Cursor.NW_RESIZE) {
+                double newWidth = stage.getX() - x + stage.getWidth();
+                double newHeight = stage.getY() - y + stage.getHeight();
+                if (newWidth >= minW) {
+                    stage.setX(x);
+                    stage.setWidth(newWidth);
+                }
+                if (newHeight >= minH) {
+                    stage.setY(y);
+                    stage.setHeight(newHeight);
+                }
+            }
+        });
+    }
 
     public static void main(String[] args) {
-
-        System.out.println("=== INICIO TEST PROYECTO BLOCKCHAIN CHEMA ===");
-
-        // Repositories
-        UsuarioRepository usuarioRepo = new UsuarioRepository();
-        RolRepository rolRepo = new RolRepository();
-        UsuarioRolRepository usuarioRolRepo = new UsuarioRolRepository();
-        DocumentoRepository documentoRepo = new DocumentoRepository();
-        RegistroBlockchainRepository registroRepo = new RegistroBlockchainRepository();
-        AuditoriaRepository auditoriaRepo = new AuditoriaRepository();
-        ApiKeyRepository apiKeyRepo = new ApiKeyRepository();
-
-        // CREAR ROLES
-        Rol admin = new Rol();
-        admin.setNombre("ADMIN");
-
-        Rol user = new Rol();
-        user.setNombre("USER");
-
-        rolRepo.save(admin);
-        rolRepo.save(user);
-
-        System.out.println("Roles creados.");
-
-        // CREAR USUARIO
-        Usuario usuario = new Usuario();
-        usuario.setNombre("chema");
-        usuario.setPassword("1234");
-        usuario.setEmail("chema@blockchain.com");
-
-        usuarioRepo.save(usuario);
-
-        System.out.println("Usuario creado.");
-
-        // ASIGNAR ROL A USUARIO
-        UsuarioRol usuarioRol = new UsuarioRol(usuario, admin);
-        usuarioRolRepo.save(usuarioRol);
-        usuarioRolRepo.save(usuarioRol);
-
-        System.out.println("Rol asignado al usuario.");
-
-        // CREAR DOCUMENTO
-        Documento documento = new Documento();
-        documento.setNombre("Contrato_Prueba.pdf");
-        documento.setHash("HASH_DOCUMENTO_123456");
-        documento.setRutaArchivo("ruta");
-        documento.setEstado(EstadoDocumento.BORRADOR);
-        documento.setEmisor(usuario);
-
-        documentoRepo.save(documento);
-
-        System.out.println("Documento creado.");
-
-        // CREAR REGISTRO BLOCKCHAIN
-        RegistroBlockchain registro = new RegistroBlockchain();
-        registro.setDocumento(documento);
-        registro.setHashDocumento("HASH_DOC_123");
-        registro.setDireccionContrato("0xABCDEF123456");
-        registro.setTransactionHash("0xTRANSACTIONHASH");
-        registro.setBloqueNumber(123456L);
-
-        registroRepo.save(registro);
-
-        System.out.println("Registro blockchain creado.");
-
-        // CREAR AUDITORÍA
-        Auditoria auditoria = new Auditoria();
-        auditoria.setAccion("CREACION_DOCUMENTO");
-        auditoria.setUsuario(usuario);
-        auditoria.setFechaCreacion(LocalDateTime.now());
-
-        auditoriaRepo.save(auditoria);
-
-        System.out.println("Auditoría registrada.");
-
-        // CREAR API KEY
-        ApiKey apiKey = new ApiKey();
-        apiKey.setClave(UUID.randomUUID().toString());
-
-        apiKeyRepo.save(apiKey);
-
-        System.out.println("API Key generada.");
-
-        // PROBAR SOFT DELETE
-        usuarioRepo.softDelete(usuario.getId());
-
-        System.out.println("Usuario soft deleted.");
-
-        System.out.println("=== FIN TEST COMPLETADO CORRECTAMENTE ===");
+        launch();
     }
 }
