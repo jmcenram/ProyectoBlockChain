@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.VerificacionController"
+           stylesheets="@/css/dark.css"
+           style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
+
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
+
+            <Label text="Verificación de documento"
+                   styleClass="title"/>
+        </HBox>
+
+        <!-- CARD -->
+        <VBox spacing="20"
+              maxWidth="500"
+              styleClass="card">
+
+            <!-- ARCHIVO -->
+            <Label text="Archivo seleccionado" styleClass="lbl-muted"/>
+
+            <HBox spacing="10">
+                <Label fx:id="lblArchivo"
+                       text="Ningún archivo seleccionado"
+                       styleClass="input"
+                       maxWidth="Infinity"
+                       HBox.hgrow="ALWAYS"/>
+
+                <Button onAction="#seleccionarArchivo"
+                        styleClass="btn-secondary">
+
+                    <graphic>
+                        <FontIcon iconLiteral="fas-folder-open"/>
+                    </graphic>
+
+                </Button>
+            </HBox>
+
+            <!-- RESULTADO -->
+            <Label text="Resultado" styleClass="lbl-muted"/>
+
+            <Label fx:id="lblResultado"
+                   text="-"
+                   style="-fx-font-size: 14px; -fx-text-fill: #e2e8f0;"/>
+
+            <!-- BOTÓN VALIDAR -->
+            <HBox alignment="CENTER_RIGHT">
+
+                <Button text="Validar documento"
+                        onAction="#validarDocumento"
+                        styleClass="btn-primary">
+
+                    <graphic>
+                        <FontIcon iconLiteral="fas-check"/>
+                    </graphic>
+
+                </Button>
+
+            </HBox>
+
+        </VBox>
+
+    </VBox>
+
+</StackPane>

@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <StackPane fx:id="root"
            xmlns:fx="http://javafx.com/fxml"
@@ -17,12 +18,14 @@
         <!-- HEADER -->
         <HBox spacing="10" alignment="CENTER_LEFT">
 
-            <Button text="⬅ Volver"
-                    onAction="#volver"
-                    prefWidth="100"
-                    styleClass="btn-secondary"/>
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
 
-            <Label text="Gestión de Documentos"
+            <Label text="%document_management_title"
                    styleClass="title"/>
         </HBox>
 
@@ -30,17 +33,21 @@
         <HBox spacing="10" alignment="CENTER_LEFT">
 
             <TextField fx:id="txtNombre"
-                       promptText="Nombre documento"
+                       promptText="%document_name"
                        prefWidth="240"
-                       prefHeight="34"
                        editable="false"
                        styleClass="input"/>
 
-            <Button text="Subir archivo"
+            <Button
                     onAction="#subirArchivo"
-                    styleClass="btn-secondary"/>
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-folder-open"/>
+                </graphic>
 
-            <Button text="Crear"
+            </Button>
+
+            <Button text="%create"
                     onAction="#crearDocumento"
                     styleClass="btn-primary"/>
 
@@ -48,12 +55,12 @@
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <Button text="Filtros"
+            <Button text="%filters"
                     onAction="#toggleFiltros"
                     styleClass="btn-secondary"/>
 
             <MenuButton fx:id="btnColumnas"
-                        text="⚙ Columnas"
+                        text="%columns"
                         styleClass="btn-secondary"/>
 
         </HBox>
@@ -61,17 +68,17 @@
         <!-- TABLA -->
         <TableView fx:id="tablaDocumentos"
                    VBox.vgrow="ALWAYS"
-                   styleClass="table-dark">
+                   styleClass="table-view">
 
             <columns>
-                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150"/>
-                <TableColumn fx:id="colFecha" text="Fecha" prefWidth="140"/>
-                <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
-                <TableColumn fx:id="colEstadoRegistro" text="Blockchain" prefWidth="140"/>
-                <TableColumn fx:id="colFechaRegistro" text="Fecha Blockchain" prefWidth="150"/>
-                <TableColumn fx:id="colHash" text="Hash" prefWidth="200"/>
-                <TableColumn fx:id="colRuta" text="Ruta" prefWidth="220"/>
-                <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="200"/>
+                <TableColumn fx:id="colNombre" text="%name" prefWidth="150"/>
+                <TableColumn fx:id="colFecha" text="%date" prefWidth="140"/>
+                <TableColumn fx:id="colEstado" text="%status" prefWidth="110"/>
+                <TableColumn fx:id="colEstadoRegistro" text="%blockchain" prefWidth="140"/>
+                <TableColumn fx:id="colFechaRegistro" text="%blockchain_date" prefWidth="150"/>
+                <TableColumn fx:id="colHash" text="%hash" prefWidth="200"/>
+                <TableColumn fx:id="colRuta" text="%path" prefWidth="220"/>
+                <TableColumn fx:id="colAcciones" text="%actions" prefWidth="270"/>
             </columns>
 
         </TableView>
@@ -88,11 +95,10 @@
         <ProgressIndicator prefWidth="80" prefHeight="80"/>
 
         <Label fx:id="lblLoading"
-               text="Procesando..."
+               text="%processing"
                styleClass="loading-text"/>
     </VBox>
 
-    <!-- 🔥 PANEL FILTROS CORREGIDO -->
     <VBox fx:id="panelFiltros"
           visible="false"
           managed="false"
@@ -116,7 +122,7 @@
         <!-- HEADER -->
         <HBox alignment="CENTER_LEFT"
               style="-fx-padding: 0 0 10 0;">
-            <Label text="Filtros" styleClass="title-small"/>
+            <Label text="%filters" styleClass="title-small"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="✖"
                     onAction="#toggleFiltros"
@@ -130,24 +136,24 @@
               VBox.vgrow="ALWAYS"
               style="-fx-padding: 10 0;">
 
-            <Label text="Nombre" styleClass="label"/>
+            <Label text="%name" styleClass="label"/>
             <TextField fx:id="filtroNombre"
                        prefHeight="34"
                        maxWidth="Infinity"
                        styleClass="input"/>
 
-            <Label text="Fecha" styleClass="label"/>
+            <Label text="%date" styleClass="label"/>
             <DatePicker fx:id="filtroFecha"
                         prefHeight="34"
                         maxWidth="Infinity"/>
 
-            <Label text="Estado" styleClass="label"/>
+            <Label text="%status" styleClass="label"/>
             <ComboBox fx:id="filtroEstado"
                       prefHeight="34"
                       maxWidth="Infinity"
                       styleClass="input"/>
 
-            <Label text="Estado blockchain" styleClass="label"/>
+            <Label text="%blockchain_status" styleClass="label"/>
             <ComboBox fx:id="filtroEstadoBlockchain"
                       prefHeight="34"
                       maxWidth="Infinity"
@@ -162,11 +168,11 @@
               alignment="CENTER_RIGHT"
               style="-fx-padding: 10 0 0 0;">
 
-            <Button text="Limpiar"
+            <Button text="%clear"
                     onAction="#limpiarFiltros"
                     styleClass="btn-secondary"/>
 
-            <Button text="Aplicar"
+            <Button text="%apply"
                     onAction="#aplicarFiltros"
                     styleClass="btn-success"/>
         </HBox>

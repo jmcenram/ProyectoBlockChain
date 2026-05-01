@@ -9,13 +9,14 @@ CREATE TABLE rol
 
 CREATE TABLE usuario
 (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre         VARCHAR(100) NOT NULL,
-    email          VARCHAR(150) NOT NULL UNIQUE,
-    password       VARCHAR(255) NOT NULL,
-    activo         BOOLEAN  DEFAULT TRUE,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado  DATETIME NULL
+    id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre             VARCHAR(100) NOT NULL,
+    email              VARCHAR(150) NOT NULL UNIQUE,
+    password           VARCHAR(255) NOT NULL,
+    entidad_emisora_id BIGINT NULL,
+    activo             BOOLEAN  DEFAULT TRUE,
+    fecha_creacion     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado      DATETIME NULL
 );
 
 CREATE TABLE usuario_rol
@@ -78,14 +79,14 @@ CREATE TABLE auditoria
     FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 );
 
-CREATE TABLE api_key
-(
+
+CREATE TABLE entidad_emisora (
+
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    clave          VARCHAR(255) NOT NULL UNIQUE,
-    activa         BOOLEAN  DEFAULT TRUE,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    descripcion    VARCHAR(255),
-    fecha_borrado  DATETIME NULL,
-    usuario_id BIGINT,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    nombre         VARCHAR(150) NOT NULL,
+    private_key    VARCHAR(255) NOT NULL UNIQUE,
+    address        VARCHAR(255) NOT NULL UNIQUE,
+    activo         BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado  TIMESTAMP NULL
 );

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.login.CrearUsuarioController"
+           stylesheets="@/css/dark.css"
+           prefWidth="600" prefHeight="450"
+           style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+
+    <VBox alignment="CENTER"
+          spacing="18"
+          prefWidth="420" prefHeight="420"
+          maxWidth="420" maxHeight="420"
+          styleClass="card"
+          pickOnBounds="false">
+
+        <!-- LOGO -->
+        <StackPane prefWidth="110" prefHeight="110"
+                   minWidth="110" minHeight="110"
+                   maxWidth="110" maxHeight="110"
+                   styleClass="logo-container">
+
+            <ImageView fitWidth="78" fitHeight="78"
+                       preserveRatio="true"
+                       style="-fx-opacity: 0.95;">
+                <image>
+                    <Image url="/img/icono-reverse.png"/>
+                </image>
+            </ImageView>
+
+        </StackPane>
+
+        <!-- TÍTULO -->
+        <Label text="%register" styleClass="title"/>
+
+        <!-- SUBTÍTULO -->
+        <Label text="%access_system" styleClass="subtitle"/>
+
+        <!-- EMAIL -->
+        <HBox fx:id="hboxEmail"
+              alignment="CENTER_LEFT"
+              spacing="10"
+              prefHeight="42"
+              styleClass="input">
+
+            <FontIcon iconLiteral="mdi2e-email-outline"
+                      styleClass="ikonli-font-icon"/>
+
+            <TextField fx:id="txtEmail"
+                       promptText="%email"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+        </HBox>
+
+        <!-- NOMBRE (solo registro) -->
+        <HBox fx:id="hboxNombre"
+              alignment="CENTER_LEFT"
+              spacing="10"
+              prefHeight="42"
+              styleClass="input">
+
+            <FontIcon iconLiteral="mdi2a-account-outline"
+                      styleClass="ikonli-font-icon"/>
+
+            <TextField fx:id="txtNombre"
+                       promptText="%name"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+        </HBox>
+
+        <!-- CREAR CUENTA -->
+        <Button fx:id="btnCrearCuenta"
+                text="%create_account"
+                prefWidth="260"
+                prefHeight="40"
+                onAction="#registrar"
+                styleClass="btn-primary"/>
+
+        <!-- CANCELAR REGISTRO -->
+        <Button fx:id="btnCancelarRegistro"
+                text="%cancel_register"
+                prefWidth="260"
+                prefHeight="40"
+                onAction="#cancelarRegistro"
+                styleClass="btn-secondary"/>
+
+    </VBox>
+
+</StackPane>

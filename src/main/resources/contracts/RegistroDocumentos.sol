@@ -33,7 +33,6 @@ contract RegistroDocumentos {
     );
 
     // =========================
-    // 🔹 REGISTRAR
     // =========================
     function registrarDocumento(bytes32 _hash) public {
 
@@ -55,7 +54,6 @@ contract RegistroDocumentos {
     }
 
     // =========================
-    // 🔹 REVOCAR
     // =========================
     function revocarDocumento(bytes32 _hash) public {
 
@@ -70,28 +68,24 @@ contract RegistroDocumentos {
     }
 
     // =========================
-    // 🔹 VERIFICAR
     // =========================
     function verificarDocumento(bytes32 _hash) public view returns (bool) {
         return documentos[_hash].estado == Estado.REGISTRADO;
     }
 
     // =========================
-    // 🔹 OBTENER ESTADO
     // =========================
     function obtenerEstado(bytes32 _hash) public view returns (Estado) {
         return documentos[_hash].estado;
     }
 
     // =========================
-    // 🔹 TODOS LOS HASHES
     // =========================
     function obtenerTodosHashes() public view returns (bytes32[] memory) {
         return listaHashes;
     }
 
     // =========================
-    // 🔹 INFO COMPLETA
     // =========================
     function obtenerDocumento(bytes32 _hash)
     public

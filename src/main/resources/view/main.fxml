@@ -2,102 +2,114 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="es.jmcenram.blockchain.controller.MainController"
+            stylesheets="@/css/dark.css"
             style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
 
-    <!-- 🔝 TOP BAR -->
     <top>
         <HBox alignment="CENTER_RIGHT"
-              spacing="10"
+              spacing="12"
+              styleClass="top-bar"
               style="-fx-padding: 12 20;">
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <Label text="Usuario:"
-                   style="-fx-text-fill: #94a3b8;"/>
+            <Label text="%user_label" styleClass="lbl-muted"/>
+            <Label fx:id="lblUsuario" styleClass="lbl-user"/>
 
-            <Label fx:id="lblUsuario"
-                   style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <!-- NUEVO -->
+            <Label fx:id="lblEntidad" text="%entity_label" styleClass="lbl-muted"/>
+            <Label fx:id="lblEntidadNombre" styleClass="lbl-user"/>
 
-            <Button text="Logout"
+            <Button text="%my_profile"
+                    onAction="#irAMiPerfil"
+                    styleClass="btn-secondary"/>
+
+            <Button text="%logout"
                     onAction="#logout"
-                    style="
-                        -fx-background-color: rgba(255,255,255,0.08);
-                        -fx-text-fill: white;
-                        -fx-background-radius: 8;
-                    "/>
+                    styleClass="btn-secondary"/>
         </HBox>
     </top>
 
-    <!-- 🎯 CONTENIDO -->
     <center>
         <StackPane alignment="CENTER">
 
-            <!-- TARJETA FIJA -->
+            <!-- TARJETA -->
             <VBox alignment="CENTER"
-                  spacing="25"
-
-                  prefWidth="400" prefHeight="400"
-                  minWidth="400"  minHeight="400"
-                  maxWidth="400"  maxHeight="400"
-
-                  style="
-                      -fx-background-color: rgba(30,41,59,0.9);
-                      -fx-background-radius: 18;
-                      -fx-padding: 30;
-                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 25, 0.4, 0, 8);
-                  ">
+                  spacing="22"
+                  prefWidth="420"
+                  prefHeight="420"
+                  maxWidth="420"
+                  maxHeight="420"
+                  styleClass="card">
 
                 <!-- TÍTULO -->
-                <Label text="Sistema Blockchain"
-                       style="
-                           -fx-text-fill: white;
-                           -fx-font-size: 26px;
-                           -fx-font-weight: bold;
-                       "/>
+                <Label text="%blockchain_system"
+                       styleClass="title"/>
 
                 <!-- SUBTÍTULO -->
-                <Label text="Gestión y validación de documentos"
-                       style="
-                           -fx-text-fill: #94a3b8;
-                           -fx-font-size: 13px;
-                       "/>
+                <Label text="%management_validation"
+                       styleClass="subtitle"/>
 
-                <!-- BOTÓN DOCUMENTOS -->
-                <Button text="📄 Gestión de documentos"
-                        prefWidth="260"
-                        prefHeight="45"
-                        onAction="#irADocumentos"
-                        style="
-                            -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
-                            -fx-text-fill: white;
-                            -fx-font-weight: bold;
-                            -fx-background-radius: 12;
-                        "/>
+                <!-- ESPACIADOR -->
+                <Region prefHeight="10"/>
 
-                <!-- BOTÓN CONFIG -->
-                <Button text="⚙ Configuración blockchain"
-                        prefWidth="260"
-                        prefHeight="45"
-                        onAction="#irAConfiguracion"
-                        style="
-                            -fx-background-color: rgba(255,255,255,0.08);
-                            -fx-text-fill: white;
-                            -fx-background-radius: 12;
-                        "/>
-                <!-- BOTÓN CONFIG -->
-                <Button text="👤 Registrar usuario"
-                        prefWidth="260"
-                        prefHeight="45"
-                        onAction="#irARegistroUsuario"
-                        style="
-                            -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
-                            -fx-text-fill: white;
-                            -fx-font-weight: bold;
-                            -fx-background-radius: 12;
-                        "/>
+                <!-- BOTONES -->
+                <VBox spacing="15" alignment="CENTER">
+
+                    <Button prefWidth="260"
+                            prefHeight="45"
+                            onAction="#irADocumentos"
+                            styleClass="btn-primary"
+                            text="%document_management">
+
+                        <graphic>
+                            <FontIcon iconLiteral="fas-file"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="btnConfiguracion"
+                            prefWidth="260"
+                            prefHeight="45"
+                            onAction="#irAConfiguracion"
+                            styleClass="btn-secondary"
+                            text="%blockchain_config">
+
+                        <graphic>
+                            <FontIcon iconLiteral="fas-cog"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="btnRegistrar"
+                            prefWidth="260"
+                            prefHeight="45"
+                            onAction="#irARegistroUsuario"
+                            styleClass="btn-secondary"
+                            text="%register_user">
+
+                        <graphic>
+                            <FontIcon iconLiteral="fas-user"/>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="btnEntidadesEmisoras"
+                            prefWidth="260"
+                            prefHeight="45"
+                            onAction="#irAEntidadesEmisoras"
+                            styleClass="btn-secondary"
+                            text="%entity_management">
+
+                        <graphic>
+                            <FontIcon iconLiteral="fas-building"/>
+                        </graphic>
+                    </Button>
+
+                </VBox>
 
             </VBox>
 

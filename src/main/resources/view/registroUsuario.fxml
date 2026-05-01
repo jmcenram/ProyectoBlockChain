@@ -1,52 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="15"
-      alignment="TOP_CENTER"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="es.jmcenram.blockchain.controller.RegistroUsuarioController"
-      stylesheets="@/css/dark.css"
-      style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.RegistroUsuarioController"
+           stylesheets="@/css/dark.css"
+           style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
 
-    <!-- HEADER -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
 
-        <Button text="⬅ Volver"
-                onAction="#volver"
-                styleClass="btn-secondary"/>
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
 
-        <Label text="Registrar usuario"
-               styleClass="title"/>
-    </HBox>
+            <Label text="%register_user"
+                   styleClass="title"/>
+        </HBox>
 
-    <!-- CAMPOS -->
-    <Label text="RPC URL" styleClass="label"/>
+        <!-- CARD -->
+        <VBox spacing="15"
+              maxWidth="400"
+              styleClass="card">
 
-    <TextField fx:id="fieldNombre"
-               prefWidth="350"
-               promptText="Nombre"
-               styleClass="input"/>
+            <!-- ROL -->
+            <Label text="%role" styleClass="lbl-muted"/>
+            <ComboBox fx:id="comboRol"/>
 
-    <TextField fx:id="fieldEmail"
-               prefWidth="350"
-               promptText="Email"
-               styleClass="input"/>
+            <!-- ENTIDAD EMISORA (solo visible para ADMIN) -->
+            <Label text="%entity_management" styleClass="lbl-muted"/>
+            <ComboBox fx:id="comboEntidadEmisora"
+                      disable="true"
+                      promptText="Selecciona una entidad"/>
 
-    <HBox spacing="10" alignment="CENTER">
+            <!-- NOMBRE -->
+            <Label text="%name" styleClass="lbl-muted"/>
+            <TextField fx:id="fieldNombre"
+            promptText="%enter_name"
+            styleClass="input"/>
 
-        <Button text="📧 Enviar"
-                onAction="#enviar"
-                styleClass="btn-primary"/>
+            <!-- EMAIL -->
+            <Label text="%email" styleClass="lbl-muted"/>
+            <TextField fx:id="fieldEmail"
+            promptText="%enter_email"
+            styleClass="input"/>
 
-    </HBox>
+            <!-- BOTÓN -->
+            <HBox alignment="CENTER_RIGHT">
 
+                <Button text="%send"
+                        onAction="#enviar"
+                        styleClass="btn-primary">
 
-</VBox>
+                    <graphic>
+                        <FontIcon iconLiteral="fas-paper-plane"/>
+                    </graphic>
+
+                </Button>
+
+            </HBox>
+
+        </VBox>
+
+    </VBox>
+
+</StackPane>

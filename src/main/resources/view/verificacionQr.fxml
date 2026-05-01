@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane fx:id="root"
+           xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.GenerarQRController"
+           stylesheets="@/css/dark.css">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
+
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
+
+            <Label text="%generate_qr"
+                   styleClass="title"/>
+        </HBox>
+
+        <!-- CARD -->
+        <VBox spacing="15"
+              maxWidth="450"
+              styleClass="card">
+
+            <!-- SELECCIÓN ARCHIVO -->
+            <Label text="%select_file"
+                   styleClass="lbl-muted"/>
+
+            <HBox spacing="10">
+
+                <TextField fx:id="txtRutaArchivo"
+                           editable="false"
+                           HBox.hgrow="ALWAYS"
+                           styleClass="input-disabled"
+                           text="%no_file_selected"
+                />
+
+                <Button text="%select"
+                        onAction="#onSeleccionarArchivo"
+                        styleClass="btn-secondary">
+
+                    <graphic>
+                        <FontIcon iconLiteral="fas-folder-open"/>
+                    </graphic>
+
+                </Button>
+
+            </HBox>
+
+            <!-- SEPARADOR -->
+            <Separator />
+
+            <!-- GENERAR QR -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+
+                <Button text="%generate_qr"
+                        onAction="#onGenerarQR"
+                        styleClass="btn-primary">
+
+                    <graphic>
+                        <FontIcon iconLiteral="fas-qrcode"/>
+                    </graphic>
+
+                </Button>
+
+            </HBox>
+
+            <!-- QR RESULTADO -->
+            <VBox alignment="CENTER" spacing="10">
+
+                <ImageView fx:id="qrImageView"
+                           fitWidth="250"
+                           fitHeight="250"
+                           preserveRatio="true"/>
+
+                <Label fx:id="lblEstado"
+                       text=""
+                       styleClass="lbl-muted"/>
+
+            </VBox>
+
+        </VBox>
+
+    </VBox>
+
+</StackPane>

@@ -1,89 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="15"
-      alignment="TOP_CENTER"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="es.jmcenram.blockchain.controller.ConfiguracionController"
-      stylesheets="@/css/dark.css"
-      style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.ConfiguracionController"
+           stylesheets="@/css/dark.css"
+           style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
 
-    <!-- HEADER -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
 
-        <Button text="⬅ Volver"
-                onAction="#volver"
-                styleClass="btn-secondary"/>
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
 
-        <Label text="Configuración Blockchain"
-               styleClass="title"/>
-    </HBox>
+            <Label text="%blockchain_configuration"
+                   styleClass="title"/>
+        </HBox>
 
-    <!-- CAMPOS -->
-    <Label text="RPC URL" styleClass="label"/>
+        <!-- CARD -->
+        <VBox spacing="15"
+              maxWidth="420"
+              styleClass="card">
 
-    <TextField fx:id="rpcUrlField"
-               prefWidth="350"
-               promptText="http://127.0.0.1:8545"
-               styleClass="input"/>
+            <!-- RPC -->
+            <Label text="%rpc_url" styleClass="lbl-muted"/>
 
-    <!-- CLAVE PRIVADA -->
-    <Label text="Private Key" styleClass="label"/>
+            <TextField fx:id="rpcUrlField"
+                       promptText="%default_rpc"
+                       prefHeight="36"
+                       styleClass="input"/>
 
-    <PasswordField fx:id="privateKeyField"
-                   prefWidth="350"
-                   promptText="Clave privada"
-                   styleClass="input"/>
+            <!-- CONTRACT -->
+            <Label text="%contract_address" styleClass="lbl-muted"/>
 
-    <!-- CLAVE DE CONTRATO -->
-    <Label text="Contract Address" styleClass="label"/>
+            <TextField fx:id="contractAddressField"
+                       prefHeight="36"
+                       promptText="%autofill_connect"
+                       styleClass="input"/>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
+            <!-- RUTA -->
+            <Label text="%config_file" styleClass="lbl-muted"/>
 
-        <TextField fx:id="contractAddressField"
-                   prefWidth="260"
-                   editable="true"
-                   promptText="Se autocompleta al conectar"
-                   styleClass="input"/>
+            <TextField fx:id="rutaConfigField"
+                       editable="false"
+                       prefHeight="36"
+                       promptText="%not_selected"
+                       styleClass="input"/>
 
-        <Button text="⚙ Generar"
-                onAction="#generarContrato"
-                styleClass="btn-secondary"/>
-    </HBox>
+            <!-- BOTONES -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
 
-    <!-- RUTA -->
-    <Label text="Fichero de configuración" styleClass="label"/>
+                <!-- CARGAR -->
+                <Button text="%load_config"
+                        onAction="#cargarConfig"
+                        styleClass="btn-secondary">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-folder-open"/>
+                    </graphic>
+                </Button>
 
-    <TextField fx:id="rutaConfigField"
-               prefWidth="350"
-               editable="false"
-               promptText="No seleccionado"
-               styleClass="input"/>
+                <!-- GUARDAR -->
+                <Button text="%save_config"
+                        onAction="#guardar"
+                        styleClass="btn-secondary">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-save"/>
+                    </graphic>
+                </Button>
 
-    <!-- BOTONES -->
-    <HBox spacing="10" alignment="CENTER">
+                <!-- CONECTAR -->
+                <Button text="%connect"
+                        onAction="#conectar"
+                        styleClass="btn-primary">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-link"/>
+                    </graphic>
+                </Button>
 
-        <Button text="💾 Guardar"
-                onAction="#guardar"
-                styleClass="btn-primary"/>
+            </HBox>
 
-        <Button text="📂 Cargar"
-                onAction="#cargarConfig"
-                styleClass="btn-secondary"/>
-    </HBox>
+            <!-- ESTADO -->
+            <Label fx:id="lblEstado"
+                   wrapText="true"
+                   text="%status_not_connected"
+                   styleClass="lbl-muted"/>
 
-    <!-- ESTADO -->
-    <Label fx:id="lblEstado"
-           wrapText="true"
-           text="Estado: no conectado"
-           styleClass="label"/>
+        </VBox>
 
-</VBox>
+    </VBox>
+
+</StackPane>

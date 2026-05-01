@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane fx:id="root"
+           xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.PerfilUsuarioController"
+           stylesheets="@/css/dark.css">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
+
+        <!-- TÍTULO -->
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
+
+            <Label text="%user_profile"
+                   styleClass="title"/>
+        </HBox>
+
+        <!-- CARD -->
+        <VBox spacing="15"
+              maxWidth="400"
+              styleClass="card">
+
+            <!-- NOMBRE -->
+            <Label text="%name" styleClass="lbl-muted"/>
+
+            <TextField fx:id="txtNombre"
+                       styleClass="input"/>
+
+            <!-- EMAIL -->
+            <Label text="%email" styleClass="lbl-muted"/>
+
+            <TextField fx:id="txtEmail"
+                       editable="false"
+                       styleClass="input-disabled"/>
+
+            <!-- ENTIDAD EMISORA (solo MASTER) -->
+            <Label fx:id="lblEntidadEmisora"
+                   text="%own_entity"
+                   styleClass="lbl-muted"/>
+
+            <ComboBox fx:id="comboEntidadEmisora"
+                      promptText="%select_entity"
+                      maxWidth="Infinity"
+                      styleClass="input"/>
+
+            <!-- SEPARADOR -->
+            <Separator />
+
+            <!-- PASSWORD -->
+            <Label text="%change_password"
+                   styleClass="section-title"/>
+
+            <PasswordField fx:id="txtActual"
+                           promptText="%current_password"
+                           styleClass="input"/>
+
+            <PasswordField fx:id="txtNueva"
+                           promptText="%new_password"
+                           styleClass="input"/>
+
+            <PasswordField fx:id="txtRepetir"
+                           promptText="%repeat_password"
+                           styleClass="input"/>
+
+            <!-- BOTONES -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+
+                <Button text="%save"
+                        onAction="#guardar"
+                        styleClass="btn-primary"/>
+
+            </HBox>
+
+        </VBox>
+
+    </VBox>
+
+</StackPane>

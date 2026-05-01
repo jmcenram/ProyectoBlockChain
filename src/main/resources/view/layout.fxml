@@ -4,58 +4,53 @@
 <?import javafx.scene.control.*?>
 
 <StackPane fx:id="root"
+           xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="es.jmcenram.blockchain.controller.LayoutController"
-           style="-fx-background-color: transparent;">
+           styleClass="app-root"
+           style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <BorderPane style="
-            -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);
-            -fx-background-radius: 15;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20,0,0,6);">
+    <BorderPane styleClass="app-container">
 
-        <!-- TOP BAR (INTEGRADA) -->
+        <!-- ========================= -->
+        <!-- TOP BAR -->
+        <!-- ========================= -->
         <top>
             <HBox fx:id="topBar"
                   prefHeight="35"
                   alignment="CENTER_RIGHT"
-                  style="
-                      -fx-background-color: transparent;
-                      -fx-padding: 5 10;">
+                  styleClass="top-bar">
 
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <!-- MINIMIZAR -->
-                <Button fx:id="btnMinimizar" text="—" onAction="#minimizar"
-                        style="
-                            -fx-background-color: transparent;
-                            -fx-text-fill: #94a3b8;
-                            -fx-font-size: 14;
-                        "/>
+                <Button fx:id="btnMinimizar"
+                        text="—"
+                        onAction="#minimizar"
+                        styleClass="window-btn"/>
 
                 <!-- MAXIMIZAR -->
-                <Button fx:id="btnAmpliar" text="⬜" onAction="#maximizar"
-                        style="
-                            -fx-background-color: transparent;
-                            -fx-text-fill: #94a3b8;
-                        "/>
+                <Button fx:id="btnAmpliar"
+                        text="⬜"
+                        onAction="#maximizar"
+                        styleClass="window-btn"/>
 
                 <!-- CERRAR -->
-                <Button fx:id="btnCerrar" text="✕"
+                <Button fx:id="btnCerrar"
+                        text="✕"
                         onAction="#cerrar"
-                        style="
-                            -fx-background-color: transparent;
-                            -fx-text-fill: #f87171;
-                            -fx-font-weight: bold;
-                        "/>
+                        styleClass="window-btn-close"/>
 
             </HBox>
         </top>
 
+        <!-- ========================= -->
         <!-- CONTENIDO -->
+        <!-- ========================= -->
         <center>
             <StackPane fx:id="content"
-                       style="-fx-background-color: transparent;"/>
+                       styleClass="content-area"/>
         </center>
 
     </BorderPane>

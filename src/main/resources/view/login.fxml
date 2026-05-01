@@ -4,99 +4,147 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane xmlns="http://javafx.com/javafx"
+<StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="es.jmcenram.blockchain.controller.login.LoginController"
-           prefWidth="600" prefHeight="400"
+           stylesheets="@/css/dark.css"
+           prefWidth="600" prefHeight="450"
            style="-fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b);">
 
-    <!-- CONTENEDOR PRINCIPAL FIJO -->
     <VBox alignment="CENTER"
-          spacing="20"
+          spacing="18"
+          prefWidth="420" prefHeight="420"
+          maxWidth="420" maxHeight="420"
+          styleClass="card"
+          pickOnBounds="false">
 
-          prefWidth="400" prefHeight="400"
-          minWidth="400"  minHeight="400"
-          maxWidth="400"  maxHeight="400"
-
-          style="
-              -fx-background-color: rgba(30,41,59,0.9);
-              -fx-background-radius: 18;
-              -fx-padding: 30;
-              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 30, 0.4, 0, 8);
-          ">
-
-        <!-- CÁPSULA SUPERIOR -->
+        <!-- LOGO -->
         <StackPane prefWidth="110" prefHeight="110"
-                   minWidth="110"  minHeight="110"
-                   maxWidth="110"  maxHeight="110"
-                   style="
-                       -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
-                       -fx-background-radius: 50;
-                       -fx-effect: dropshadow(gaussian, rgba(20,184,166,0.6), 20, 0.5, 0, 0);
-                   ">
+                   minWidth="110" minHeight="110"
+                   maxWidth="110" maxHeight="110"
+                   styleClass="logo-container">
 
-            <ImageView fitWidth="102" fitHeight="102" preserveRatio="true">
+            <ImageView fitWidth="78" fitHeight="78"
+                       preserveRatio="true"
+                       style="-fx-opacity: 0.95;">
                 <image>
-                    <Image url="@/img/icono-reverse.png"/>
+                    <Image url="/img/icono-reverse.png"/>
                 </image>
             </ImageView>
 
         </StackPane>
 
-        <!-- TEXTO -->
-        <Label text="Bienvenido"
-               style="
-                   -fx-text-fill: white;
-                   -fx-font-size: 26px;
-                   -fx-font-weight: bold;
-               " />
+        <!-- TÍTULO -->
+        <Label text="%welcome" styleClass="title"/>
 
-        <!-- USUARIO -->
-        <TextField fx:id="txtUsuario"
-                   promptText="Usuario"
-                   prefHeight="42"
-                   style="
-                       -fx-background-color: rgba(255,255,255,0.08);
-                       -fx-text-fill: white;
-                       -fx-prompt-text-fill: #94a3b8;
-                       -fx-background-radius: 12;
-                   " />
+        <!-- SUBTÍTULO -->
+        <Label text="%access_system"
+               styleClass="subtitle"/>
+
+        <!-- EMAIL -->
+        <HBox fx:id="hboxEmail"
+              alignment="CENTER_LEFT"
+              spacing="10"
+              prefHeight="42"
+              styleClass="input"
+        >
+
+            <FontIcon iconLiteral="mdi2e-email-outline"
+                      styleClass="ikonli-font-icon"/>
+
+            <TextField fx:id="txtEmail"
+                       promptText="%user"
+                       HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+        </HBox>
 
         <!-- PASSWORD -->
-        <PasswordField fx:id="txtPassword"
-                       promptText="Contraseña"
-                       prefHeight="42"
-                       style="
-                           -fx-background-color: rgba(255,255,255,0.08);
-                           -fx-text-fill: white;
-                           -fx-prompt-text-fill: #94a3b8;
-                           -fx-background-radius: 12;
-                       " />
+        <HBox alignment="CENTER_LEFT"
+              spacing="10"
+              prefHeight="42"
+              styleClass="input">
+
+            <FontIcon iconLiteral="mdi2l-lock-outline"
+                      styleClass="ikonli-font-icon"/>
+
+            <PasswordField fx:id="txtPassword"
+                           promptText="%password"
+                           HBox.hgrow="ALWAYS"
+                           style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+        </HBox>
+
+        <!-- PASSWORD NUEVA -->
         <PasswordField fx:id="txtPasswordNueva"
-                       promptText="Contraseña"
+                       promptText="%new_password"
                        visible="false"
                        managed="false"
                        prefHeight="42"
-                       style="
-                           -fx-background-color: rgba(255,255,255,0.08);
-                           -fx-text-fill: white;
-                           -fx-prompt-text-fill: #94a3b8;
-                           -fx-background-radius: 12;
-                       " />
+                       styleClass="input"/>
 
-        <!-- BOTÓN -->
-        <Button text="Iniciar sesión"
+        <!-- BOTÓN LOGIN -->
+        <Button text="%login"
                 prefWidth="260"
-                prefHeight="42"
+                prefHeight="44"
                 onAction="#login"
-                style="
-                    -fx-background-color: linear-gradient(to right, #14b8a6, #22c55e);
-                    -fx-text-fill: white;
-                    -fx-font-weight: bold;
-                    -fx-background-radius: 12;
-                " />
+                styleClass="btn-primary"/>
+
+        <!-- SEPARADOR -->
+        <HBox fx:id="hboxSeparador"
+              alignment="CENTER"
+              spacing="10"
+              prefWidth="260">
+
+            <Separator HBox.hgrow="ALWAYS"/>
+            <Label text="o" styleClass="lbl-muted"/>
+            <Separator HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- CREAR CUENTA -->
+        <Button fx:id="btnCrearCuenta"
+                text="%create_account"
+                prefWidth="260"
+                prefHeight="40"
+                onAction="#irARegistro"
+                styleClass="btn-secondary"/>
 
     </VBox>
+
+    <!-- COMBO IDIOMA — encima del VBox -->
+    <HBox alignment="TOP_RIGHT"
+          spacing="10"
+          StackPane.alignment="TOP_RIGHT"
+          style="-fx-padding: 10;"
+          pickOnBounds="false">
+
+        <ComboBox fx:id="comboIdioma"
+                  prefWidth="140"
+                  onAction="#cambiarIdioma"/>
+
+    </HBox>
+
+    <!-- BOTÓN QR -->
+    <HBox alignment="TOP_LEFT"
+          spacing="10"
+          StackPane.alignment="TOP_LEFT"
+          style="-fx-padding: 10;"
+          pickOnBounds="false">
+
+        <Button onAction="#irAQr"
+                styleClass="btn-secondary">
+
+            <graphic>
+                <FontIcon iconLiteral="fas-qrcode"/>
+            </graphic>
+            <tooltip>
+                <Tooltip text="%verify_qr"/>
+            </tooltip>
+
+        </Button>
+
+    </HBox>
 
 </StackPane>

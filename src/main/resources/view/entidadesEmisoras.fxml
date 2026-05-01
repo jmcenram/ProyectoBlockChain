@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="es.jmcenram.blockchain.controller.EntidadEmisoraController"
+           stylesheets="@/css/dark.css">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          style="-fx-padding: 30;">
+
+        <!-- HEADER -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Button onAction="#volver"
+                    styleClass="btn-secondary">
+                <graphic>
+                    <FontIcon iconLiteral="fas-arrow-left"/>
+                </graphic>
+            </Button>
+
+            <Label text="%entity_management"
+                   styleClass="title"/>
+        </HBox>
+
+        <!-- CONTENIDO -->
+        <HBox spacing="20" maxWidth="900">
+
+            <!-- LISTADO -->
+            <VBox spacing="10"
+                  prefWidth="350"
+                  styleClass="card">
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="%entities"
+                           styleClass="section-title"/>
+
+                    <Pane HBox.hgrow="ALWAYS"/>
+
+                    <Button onAction="#nuevaEntidad"
+                            styleClass="btn-primary">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-plus"/>
+                        </graphic>
+                    </Button>
+                </HBox>
+
+                <ListView fx:id="listEntidades"
+                          VBox.vgrow="ALWAYS"/>
+
+            </VBox>
+
+            <!-- FORMULARIO -->
+            <VBox spacing="15"
+                  prefWidth="400"
+                  styleClass="card">
+
+                <Label text="%entity_data"
+                       styleClass="section-title"/>
+
+                <!-- NOMBRE -->
+                <Label text="%name" styleClass="lbl-muted"/>
+                <TextField fx:id="txtNombre"
+                           styleClass="input"/>
+
+                <!-- PRIVATE KEY -->
+                <Label text="Private Key" styleClass="lbl-muted"/>
+                <PasswordField fx:id="txtPrivateKey"
+                               styleClass="input"/>
+
+                <!-- ACTIVO -->
+                <CheckBox fx:id="chkActivo"
+                          text="%active"/>
+
+                <!-- BOTONES -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+
+                    <Button text="%delete"
+                            onAction="#eliminar"
+                            styleClass="btn-secondary"/>
+
+                    <Button text="%save"
+                            onAction="#guardar"
+                            styleClass="btn-primary"/>
+
+                </HBox>
+
+            </VBox>
+
+        </HBox>
+
+    </VBox>
+
+</StackPane>

@@ -12,11 +12,37 @@ import jakarta.persistence.EntityTransaction;
 
 import java.time.LocalDateTime;
 
+/**
+ * Servicio encargado de la logica de negocio de BlockchainUpdate.
+ *
+ * Permite:
+ * - Validar reglas antes de persistir cambios
+ * - Coordinar repositorios relacionados
+ * - Exponer operaciones usadas por controladores u otros servicios
+ *
+ * Forma parte de la capa de servicio y mantiene la logica fuera de la interfaz.
+ *
+ * @author Jcena
+ * @version 1.0
+ */
 public class BlockchainUpdateService {
 
-    // =========================
-    // REGISTRO
-    // =========================
+    /**
+     * Actualiza el registro blockchain y el documento después de registrar un hash en la blockchain.
+     * Establece el estado a REGISTRADO, guarda el txHash y la fecha de registro.
+     *
+     * Operación transaccional: todos los cambios se hacen en una misma transacción:
+     * - Actualiza RegistroBlockchain con txHash y estado REGISTRADO
+     * - Actualiza Documento con fechaRegistroBlockchain
+     * - Crea registro de auditoría con mensaje "REGISTRO_BLOCKCHAIN"
+     *
+     * Si el registro o documento no existen, hace rollback silenciosamente.
+     *
+     * @param registroId ID del RegistroBlockchain a actualizar
+     * @param documentoId ID del Documento correspondiente
+     * @param usuario usuario que realizó la operación (para auditoría)
+     * @param txHash hash de transacción de blockchain (para traceabilidad)
+     */
     public void actualizarRegistro(Long registroId, Long documentoId, Usuario usuario, String txHash) {
 
         EntityManager em = JPAUtil.getEntityManager();
@@ -63,9 +89,20 @@ public class BlockchainUpdateService {
         }
     }
 
-    // =========================
-    // REVOCACIÓN
-    // =========================
+    /**
+     * Actualiza el registro blockchain después de revocar un documento en la blockchain.
+     * Establece el estado a REVOCADO y guarda el txHash de la revocación.
+     *
+     * Operación transaccional: todos los cambios en una misma transacción:
+     * - Actualiza RegistroBlockchain con txHash y estado REVOCADO
+     * - Crea registro de auditoría con mensaje "REVOCACION_BLOCKCHAIN"
+     *
+     * Si el registro no existe, hace rollback silenciosamente.
+     *
+     * @param registroId ID del RegistroBlockchain a revocación
+     * @param usuario usuario que realizó la operación (para auditoría)
+     * @param txHash hash de transacción de revocación en blockchain
+     */
     public void actualizarRevocacion(Long registroId, Usuario usuario, String txHash) {
 
         EntityManager em = JPAUtil.getEntityManager();
@@ -108,9 +145,14 @@ public class BlockchainUpdateService {
         }
     }
 
-    // =========================
-    // ERROR
-    // =========================
+    /**
+     * Marca un registro blockchain en estado ERROR cuando falla la operación en blockchain.
+     * Se invoca desde DocumentoService si la transacción async rechaza o falla.
+     *
+     * Operación transaccional simple que solo actualiza el estado a ERROR.
+     *
+     * @param registroId ID del RegistroBlockchain que falló
+     */
     public void marcarError(Long registroId) {
 
         EntityManager em = JPAUtil.getEntityManager();
@@ -129,7 +171,7 @@ public class BlockchainUpdateService {
 
             tx.commit();
 
-            System.out.println("🔴 ERROR GUARDADO EN DB");
+            System.out.println("ERROR GUARDADO EN DB");
 
         } catch (Exception e) {
 

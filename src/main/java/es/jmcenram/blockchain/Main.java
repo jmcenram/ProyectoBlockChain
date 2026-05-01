@@ -1,72 +1,142 @@
 package es.jmcenram.blockchain;
 
 import es.jmcenram.blockchain.config.BlockchainConfig;
-import es.jmcenram.blockchain.config.demo.GanacheStarter;
-import es.jmcenram.blockchain.service.blockchain.BlockchainService;
+import es.jmcenram.blockchain.config.ConfigManager;
 import es.jmcenram.blockchain.controller.LayoutController;
+import es.jmcenram.blockchain.controller.utils.AvisosUtil;
+import es.jmcenram.blockchain.service.blockchain.BlockchainService;
+import es.jmcenram.blockchain.util.Messages;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import static javafx.scene.Cursor.*;
+
+/**
+ * Clase principal de la aplicación JavaFX.
+ *
+ * Se encarga de:
+ * - Inicializar la configuración de blockchain
+ * - Lanzar la interfaz gráfica principal
+ * - Cargar el layout base y la vista inicial (login)
+ * - Configurar la escena (CSS, estilos, iconos, redimensionado)
+ *
+ * Gestiona también el modo de ejecución:
+ * - Con blockchain activo (si la configuración es válida)
+ * - Sin blockchain (modo degradado)
+ *
+ * Implementa soporte completo para:
+ * - Ventana sin bordes (Stage transparente)
+ * - Redimensionado manual
+ * - Bordes redondeados
+ *
+ * @author Jcena
+ * @version 1.0
+ */
 public class Main extends Application {
 
+    /**
+     * Configuración global de protocolos TLS para comunicaciones HTTPS.
+     *
+     * Fuerza el uso de TLS 1.2 en el cliente Java para garantizar compatibilidad
+     * con servicios externos como nodos blockchain (Web3j, Alchemy, Infura).
+     *
+     * Es especialmente necesario en aplicaciones empaquetadas (jpackage),
+     * donde la negociación automática de protocolos puede fallar y provocar errores como:
+     * "Unable to find acceptable protocols".
+     *
+     * Esta configuración se aplica de forma estática al iniciar la JVM,
+     * antes de cualquier conexión de red.
+     */
+    static {
+        System.setProperty("https.protocols", "TLSv1.2");
+        System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
+    }
+
+    /** Cursor actual utilizado para el redimensionado de la ventana */
+    private Cursor currentCursor = Cursor.DEFAULT;
+
+    /**
+     * Método principal de arranque de JavaFX.
+     *
+     * Inicializa:
+     * - Configuración de blockchain
+     * - Layout principal
+     * - Vista inicial (login)
+     * - Estilos globales
+     *
+     * @param stage ventana principal
+     * @throws Exception si ocurre algún error durante la carga de vistas
+     */
     @Override
     public void start(Stage stage) throws Exception {
 
-        System.out.println("🔗 Inicializando nodo blockchain...");
-        GanacheStarter.startIfNotRunning();
-        System.out.println("✅ Nodo listo");
+        System.out.println("Inicializando configuración blockchain...");
 
-        // =========================
-        // 🔗 CONFIG BLOCKCHAIN
-        // =========================
-        BlockchainConfig config = new BlockchainConfig();
-        config.setRpcUrl("http://127.0.0.1:8545");
-        config.setPrivateKey("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
-        config.setContractAddress("");
+        BlockchainConfig config = null;
+        boolean blockchainActivo = false;
 
-        BlockchainService.init(config);
-        System.out.println("✅ BlockchainService inicializado");
+        try {
+            config = ConfigManager.load();
 
-        // =========================
-        // 🔥 VENTANA TRANSPARENTE
-        // =========================
+            if (config.getRpcUrl() == null || config.getRpcUrl().isBlank()) {
+                throw new RuntimeException("RPC no configurado");
+            }
+
+            BlockchainService.init(config);
+
+            String address = BlockchainService.getInstance() != null
+                    ? BlockchainService.getInstance().getContractAddress()
+                    : null;
+
+            if (address != null && !address.isBlank()) {
+                config.setContractAddress(address);
+            }
+
+            ConfigManager.save(config);
+
+            blockchainActivo = true;
+
+        } catch (Exception e) {
+            System.out.println("Error blockchain: " + e.getMessage());
+        }
+
         stage.initStyle(StageStyle.TRANSPARENT);
+        stage.setMinHeight(600);
 
-        // =========================
-        // 🎨 LAYOUT
-        // =========================
         FXMLLoader layoutLoader = new FXMLLoader(
                 getClass().getResource("/view/layout.fxml")
         );
+        layoutLoader.setResources(Messages.getBundle());
 
         Parent layoutRoot = layoutLoader.load();
         LayoutController layoutController = layoutLoader.getController();
 
-        Parent loginView = FXMLLoader.load(
+        layoutController.setLayoutRoot(layoutRoot);
+        layoutController.setBlockchainActivo(blockchainActivo);
+
+        FXMLLoader loginLoader = new FXMLLoader(
                 getClass().getResource("/view/login.fxml")
         );
+        loginLoader.setResources(Messages.getBundle());
 
+        Parent loginView = loginLoader.load();
         layoutController.setContent(loginView);
 
-        // =========================
-        // 🖥️ ESCENA
-        // =========================
         Scene scene = new Scene(layoutRoot);
-
-        // 🔥 IMPORTANTE: evitar artefactos
         scene.setFill(null);
 
-        // =========================
-        // 🔥 CLIP PARA BORDES REDONDEADOS (SOLUCIÓN)
-        // =========================
+        scene.getStylesheets().add(
+                getClass().getResource("/css/dark.css").toExternalForm()
+        );
+
         Rectangle clip = new Rectangle();
         clip.setArcWidth(20);
         clip.setArcHeight(20);
@@ -75,23 +145,18 @@ public class Main extends Application {
         clip.heightProperty().bind(scene.heightProperty());
 
         layoutRoot.setClip(clip);
+        layoutController.setClipRectangle(clip);
 
-        // 🔥 navegación global
         scene.setUserData(layoutController);
 
-        // 🔥 RESIZE
         addResizeSupport(stage, scene);
 
-        // =========================
-        // 🪟 CONFIG VENTANA
-        // =========================
         stage.setScene(scene);
-
-        stage.setWidth(600);
-        stage.setHeight(600);
-
-        stage.setMinWidth(400);
-        stage.setMinHeight(600);
+        stage.setWidth(890);
+        stage.setHeight(620);
+        stage.setMinWidth(890);
+        stage.setMinHeight(620);
+        stage.setTitle("BlockchainApp");
 
         stage.centerOnScreen();
 
@@ -99,106 +164,149 @@ public class Main extends Application {
                 new Image(getClass().getResourceAsStream("/img/icono.png"))
         );
 
-        stage.setOnCloseRequest(event ->
-                System.out.println("🛑 Cerrando aplicación...")
-        );
-
         stage.show();
+
+        if (!blockchainActivo) {
+            AvisosUtil.mostrarAlerta(
+                    Messages.getString("blockchain_offline_title"),
+                    Messages.getString("blockchain_offline_msg")
+            );
+        }
     }
 
-    // =========================
-    // 🔥 RESIZE MANUAL
-    // =========================
+    /**
+     * Añade soporte de redimensionado manual a una ventana sin bordes.
+     *
+     * Detecta la posición del ratón en los bordes y aplica:
+     * - Cambios de cursor
+     * - Redimensionado dinámico
+     *
+     * Soporta:
+     * - Bordes laterales
+     * - Esquinas
+     * - Límites mínimos de tamaño
+     *
+     * @param stage ventana a modificar
+     * @param scene escena asociada
+     */
     private void addResizeSupport(Stage stage, Scene scene) {
 
         final int BORDER = 6;
+
+        final double[] startX = new double[1];
+        final double[] startY = new double[1];
+        final double[] startW = new double[1];
+        final double[] startH = new double[1];
+        final double[] startStageX = new double[1];
+        final double[] startStageY = new double[1];
 
         scene.setOnMouseMoved(e -> {
 
             double x = e.getSceneX();
             double y = e.getSceneY();
+            double w = scene.getWidth();
+            double h = scene.getHeight();
 
-            double width = scene.getWidth();
-            double height = scene.getHeight();
+            if (x < BORDER && y < BORDER) currentCursor = NW_RESIZE;
+            else if (x > w - BORDER && y < BORDER) currentCursor = NE_RESIZE;
+            else if (x < BORDER && y > h - BORDER) currentCursor = SW_RESIZE;
+            else if (x > w - BORDER && y > h - BORDER) currentCursor = SE_RESIZE;
+            else if (x < BORDER) currentCursor = W_RESIZE;
+            else if (x > w - BORDER) currentCursor = E_RESIZE;
+            else if (y < BORDER) currentCursor = N_RESIZE;
+            else if (y > h - BORDER) currentCursor = S_RESIZE;
+            else currentCursor = Cursor.DEFAULT;
 
-            if (x < BORDER && y < BORDER) {
-                scene.setCursor(Cursor.NW_RESIZE);
-            } else if (x > width - BORDER && y < BORDER) {
-                scene.setCursor(Cursor.NE_RESIZE);
-            } else if (x < BORDER && y > height - BORDER) {
-                scene.setCursor(Cursor.SW_RESIZE);
-            } else if (x > width - BORDER && y > height - BORDER) {
-                scene.setCursor(Cursor.SE_RESIZE);
-            } else if (x < BORDER) {
-                scene.setCursor(Cursor.W_RESIZE);
-            } else if (x > width - BORDER) {
-                scene.setCursor(Cursor.E_RESIZE);
-            } else if (y > height - BORDER) {
-                scene.setCursor(Cursor.S_RESIZE);
-            } else {
-                scene.setCursor(Cursor.DEFAULT);
-            }
+            scene.setCursor(currentCursor);
+        });
+
+        scene.setOnMousePressed(e -> {
+            startX[0] = e.getScreenX();
+            startY[0] = e.getScreenY();
+            startW[0] = stage.getWidth();
+            startH[0] = stage.getHeight();
+            startStageX[0] = stage.getX();
+            startStageY[0] = stage.getY();
         });
 
         scene.setOnMouseDragged(e -> {
 
-            if (scene.getCursor() == Cursor.DEFAULT) return;
+            if (currentCursor == Cursor.DEFAULT) return;
 
-            double x = e.getScreenX();
-            double y = e.getScreenY();
+            double dx = e.getScreenX() - startX[0];
+            double dy = e.getScreenY() - startY[0];
 
-            double minW = 500;
-            double minH = 500;
+            double minW = 890;
+            double minH = 620;
 
-            if (scene.getCursor() == Cursor.E_RESIZE) {
-                double newWidth = x - stage.getX();
-                if (newWidth >= minW) stage.setWidth(newWidth);
-            } else if (scene.getCursor() == Cursor.W_RESIZE) {
-                double newWidth = stage.getX() - x + stage.getWidth();
-                if (newWidth >= minW) {
-                    stage.setX(x);
-                    stage.setWidth(newWidth);
+            if (currentCursor.equals(E_RESIZE)) {
+                double newW = startW[0] + dx;
+                if (newW >= minW) stage.setWidth(newW);
+
+            } else if (currentCursor.equals(W_RESIZE)) {
+                double newW = startW[0] - dx;
+                if (newW >= minW) {
+                    stage.setX(startStageX[0] + dx);
+                    stage.setWidth(newW);
                 }
-            } else if (scene.getCursor() == Cursor.S_RESIZE) {
-                double newHeight = y - stage.getY();
-                if (newHeight >= minH) stage.setHeight(newHeight);
-            } else if (scene.getCursor() == Cursor.SE_RESIZE) {
-                double newWidth = x - stage.getX();
-                double newHeight = y - stage.getY();
-                if (newWidth >= minW) stage.setWidth(newWidth);
-                if (newHeight >= minH) stage.setHeight(newHeight);
-            } else if (scene.getCursor() == Cursor.SW_RESIZE) {
-                double newWidth = stage.getX() - x + stage.getWidth();
-                double newHeight = y - stage.getY();
-                if (newWidth >= minW) {
-                    stage.setX(x);
-                    stage.setWidth(newWidth);
+
+            } else if (currentCursor.equals(S_RESIZE)) {
+                double newH = startH[0] + dy;
+                if (newH >= minH) stage.setHeight(newH);
+
+            } else if (currentCursor.equals(N_RESIZE)) {
+                double newH = startH[0] - dy;
+                if (newH >= minH) {
+                    stage.setY(startStageY[0] + dy);
+                    stage.setHeight(newH);
                 }
-                if (newHeight >= minH) stage.setHeight(newHeight);
-            } else if (scene.getCursor() == Cursor.NE_RESIZE) {
-                double newWidth = x - stage.getX();
-                double newHeight = stage.getY() - y + stage.getHeight();
-                if (newWidth >= minW) stage.setWidth(newWidth);
-                if (newHeight >= minH) {
-                    stage.setY(y);
-                    stage.setHeight(newHeight);
+
+            } else if (currentCursor.equals(SE_RESIZE)) {
+                double newW = startW[0] + dx;
+                double newH = startH[0] + dy;
+                if (newW >= minW) stage.setWidth(newW);
+                if (newH >= minH) stage.setHeight(newH);
+
+            } else if (currentCursor.equals(SW_RESIZE)) {
+                double newW = startW[0] - dx;
+                double newH = startH[0] + dy;
+                if (newW >= minW) {
+                    stage.setX(startStageX[0] + dx);
+                    stage.setWidth(newW);
                 }
-            } else if (scene.getCursor() == Cursor.NW_RESIZE) {
-                double newWidth = stage.getX() - x + stage.getWidth();
-                double newHeight = stage.getY() - y + stage.getHeight();
-                if (newWidth >= minW) {
-                    stage.setX(x);
-                    stage.setWidth(newWidth);
+                if (newH >= minH) stage.setHeight(newH);
+
+            } else if (currentCursor.equals(NE_RESIZE)) {
+                double newW = startW[0] + dx;
+                double newH = startH[0] - dy;
+                if (newW >= minW) stage.setWidth(newW);
+                if (newH >= minH) {
+                    stage.setY(startStageY[0] + dy);
+                    stage.setHeight(newH);
                 }
-                if (newHeight >= minH) {
-                    stage.setY(y);
-                    stage.setHeight(newHeight);
+
+            } else if (currentCursor.equals(NW_RESIZE)) {
+                double newW = startW[0] - dx;
+                double newH = startH[0] - dy;
+                if (newW >= minW) {
+                    stage.setX(startStageX[0] + dx);
+                    stage.setWidth(newW);
+                }
+                if (newH >= minH) {
+                    stage.setY(startStageY[0] + dy);
+                    stage.setHeight(newH);
                 }
             }
         });
     }
 
+    /**
+     * Punto de entrada estándar de la aplicación.
+     *
+     * @param args argumentos de ejecución
+     */
     public static void main(String[] args) {
+        System.setProperty("prism.order", "sw");
         launch();
     }
 }
