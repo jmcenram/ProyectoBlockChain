@@ -40,6 +40,16 @@ public class UsuarioRolRepository {
      */
     public UsuarioRol save(UsuarioRol entity) {
 
+        if (entity == null || entity.getUsuario() == null || entity.getRol() == null) {
+            throw new IllegalArgumentException("La relacion usuario-rol debe tener usuario y rol");
+        }
+
+        if (entity.getUsuario().getId() == null || entity.getRol().getId() == null) {
+            throw new IllegalArgumentException("Usuario y rol deben estar persistidos antes de asignar la relacion");
+        }
+
+        entity.setId(new UsuarioRolId(entity.getUsuario().getId(), entity.getRol().getId()));
+
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
 

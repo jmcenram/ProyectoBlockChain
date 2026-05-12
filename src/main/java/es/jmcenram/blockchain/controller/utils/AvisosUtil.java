@@ -310,7 +310,7 @@ public abstract class AvisosUtil {
         card.setPrefSize(300, 220);
         card.setMaxSize(320, 320);
 
-        // ICONO 🔐
+        // ICONO
         FontIcon icon = new FontIcon("fas-lock");
         icon.setIconSize(28);
         icon.setIconColor(Color.web("#38bdf8"));

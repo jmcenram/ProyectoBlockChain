@@ -47,6 +47,13 @@
             <version>6.4.4.Final</version>
         </dependency>
 
+        <!-- SQLite dialect for Hibernate -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>6.4.4.Final</version>
+        </dependency>
+
         <!-- MySQL driver -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -123,6 +130,12 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>3.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.3.0</version>
         </dependency>
     </dependencies>
 

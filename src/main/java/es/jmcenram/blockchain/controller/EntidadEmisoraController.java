@@ -120,7 +120,7 @@ public class EntidadEmisoraController implements Initializable {
             List<EntidadEmisora> entidades = service.findAll();
             listEntidades.getItems().setAll(entidades);
         } catch (Exception e) {
-            AvisosUtil.mostrarError("Error cargando entidades");
+            AvisosUtil.mostrarError(Messages.getString("entity_load_error"));
         }
     }
 
@@ -148,7 +148,7 @@ public class EntidadEmisoraController implements Initializable {
 
         } catch (Exception e) {
             txtPrivateKey.clear();
-            AvisosUtil.mostrarError("Error descifrando la private key");
+            AvisosUtil.mostrarError(Messages.getString("private_key_decrypt_error"));
         }
 
         chkActivo.setSelected(Boolean.TRUE.equals(entidad.getActivo()));
@@ -216,7 +216,7 @@ public class EntidadEmisoraController implements Initializable {
 
                 // Validar formato (64 hex)
                 if (!privateKey.matches("^[0-9a-fA-F]{64}$")) {
-                    AvisosUtil.mostrarError("La private key no tiene un formato válido");
+                    AvisosUtil.mostrarError(Messages.getString("private_key_invalid_format"));
                     return;
                 }
 
@@ -224,13 +224,13 @@ public class EntidadEmisoraController implements Initializable {
                     Credentials credentials = Credentials.create(privateKey);
                     String address = credentials.getAddress();
 
-                    // 🔥 VALIDACIÓN REAL EN BLOCKCHAIN
+                    // Validacion real en blockchain
                     boolean tieneBalance = BlockchainService
                             .getInstance()
                             .tieneBalance(address);
 
                     if (!tieneBalance) {
-                        AvisosUtil.mostrarError("La cuenta no tiene fondos o no está activa en la red");
+                        AvisosUtil.mostrarError(Messages.getString("blockchain_account_inactive"));
                         return;
                     }
 
@@ -240,56 +240,25 @@ public class EntidadEmisoraController implements Initializable {
                     entidad.setAddress(address);
 
                 } catch (Exception e) {
-                    AvisosUtil.mostrarError("Error procesando la private key o consultando blockchain");
+                    AvisosUtil.mostrarError(Messages.getString("private_key_blockchain_error"));
                     return;
                 }
             }
 
             service.save(entidad);
 
-            AvisosUtil.mostrarInfo("Datos guardados correctamente");
+            AvisosUtil.mostrarInfo(Messages.getString("data_saved"));
 
             cargarEntidades();
             limpiarFormulario();
 
         } catch (Exception e) {
             e.printStackTrace();
-            AvisosUtil.mostrarError("Error al guardar");
+            AvisosUtil.mostrarError(Messages.getString("save_error"));
         }
     }
 
-    /**
-     * Elimina logicamente la entidad emisora seleccionada.
-     *
-     * La baja conserva el registro para trazabilidad, pero evita que siga apareciendo como entidad operativa.
-     */
-    @FXML
-    private void eliminar() {
 
-        if (entidadSeleccionada == null) {
-            AvisosUtil.mostrarError("Selecciona una entidad");
-            return;
-        }
-
-        boolean confirmar = AvisosUtil.confirmarAccion(
-                "Confirmar eliminación",
-                "¿Deseas eliminar la entidad?"
-        );
-
-        if (!confirmar) return;
-
-        try {
-            service.delete(entidadSeleccionada);
-
-            AvisosUtil.mostrarInfo("Entidad eliminada");
-
-            cargarEntidades();
-            limpiarFormulario();
-
-        } catch (Exception e) {
-            AvisosUtil.mostrarError("Error eliminando");
-        }
-    }
 
     /**
      * Vuelve a la vista principal manteniendo el layout global.
@@ -311,14 +280,14 @@ public class EntidadEmisoraController implements Initializable {
                     listEntidades.getScene().getUserData();
 
             if (layout == null) {
-                AvisosUtil.mostrarError("Error de navegación");
+                AvisosUtil.mostrarError(Messages.getString("navigation_error"));
                 return;
             }
 
             layout.setContent(mainView);
 
         } catch (Exception e) {
-            AvisosUtil.mostrarError("Error al volver");
+            AvisosUtil.mostrarError(Messages.getString("back_error"));
         }
     }
 
@@ -331,12 +300,12 @@ public class EntidadEmisoraController implements Initializable {
         String privateKey = txtPrivateKey.getText().trim();
 
         if (nombre.isBlank()) {
-            AvisosUtil.mostrarError("El nombre es obligatorio");
+            AvisosUtil.mostrarError(Messages.getString("name_required"));
             return false;
         }
 
         if (entidadSeleccionada == null && privateKey.isBlank()) {
-            AvisosUtil.mostrarError("La private key es obligatoria");
+            AvisosUtil.mostrarError(Messages.getString("private_key_required"));
             return false;
         }
 
@@ -348,14 +317,14 @@ public class EntidadEmisoraController implements Initializable {
                         : privateKey;
 
                 if (!pk.matches("[0-9a-fA-F]{64}")) {
-                    AvisosUtil.mostrarError("Formato de private key inválido");
+                    AvisosUtil.mostrarError(Messages.getString("private_key_invalid_format"));
                     return false;
                 }
 
                 org.web3j.crypto.Credentials.create(pk);
 
             } catch (Exception e) {
-                AvisosUtil.mostrarError("Private key inválida");
+                AvisosUtil.mostrarError(Messages.getString("private_key_invalid"));
                 return false;
             }
         }

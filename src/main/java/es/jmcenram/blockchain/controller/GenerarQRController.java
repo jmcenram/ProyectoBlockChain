@@ -184,7 +184,7 @@ public class GenerarQRController {
             String json = mapper.writeValueAsString(qrData);
 
             // =========================
-            // 5. COMPRESIÓN MÁXIMA 🔥
+            // 5. COMPRESION MAXIMA
             // =========================
             String contenidoQR = compress(json);
 
@@ -194,11 +194,11 @@ public class GenerarQRController {
             WritableImage qr = generarQR(contenidoQR);
 
             qrImageView.setImage(qr);
-            lblEstado.setText("QR generado correctamente");
+            lblEstado.setText(Messages.getString("qr_generated"));
 
         } catch (Exception e) {
             e.printStackTrace();
-            lblEstado.setText("Error generando QR");
+            lblEstado.setText(Messages.getString("qr_generation_error"));
         }
     }
 
@@ -255,7 +255,7 @@ public class GenerarQRController {
                     qrImageView.getScene().getUserData();
 
             if (layout == null) {
-                lblEstado.setText("Error de navegación");
+                lblEstado.setText(Messages.getString("navigation_error"));
                 return;
             }
 
@@ -263,7 +263,7 @@ public class GenerarQRController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            lblEstado.setText("Error al volver");
+            lblEstado.setText(Messages.getString("back_error"));
         }
     }
 

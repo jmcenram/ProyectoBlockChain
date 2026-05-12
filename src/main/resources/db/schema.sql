@@ -1,30 +1,45 @@
-CREATE TABLE rol
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS entidad_emisora
 (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre         VARCHAR(50) NOT NULL UNIQUE,
-    descripcion    VARCHAR(255),
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado  DATETIME NULL
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre         TEXT    NOT NULL,
+    private_key    TEXT    NOT NULL UNIQUE,
+    address        TEXT    NOT NULL UNIQUE,
+    activo         INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0, 1)),
+    fecha_creacion TEXT    DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado  TEXT
 );
 
-CREATE TABLE usuario
+CREATE TABLE IF NOT EXISTS rol
 (
-    id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre             VARCHAR(100) NOT NULL,
-    email              VARCHAR(150) NOT NULL UNIQUE,
-    password           VARCHAR(255) NOT NULL,
-    entidad_emisora_id BIGINT NULL,
-    activo             BOOLEAN  DEFAULT TRUE,
-    fecha_creacion     DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado      DATETIME NULL
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre         TEXT NOT NULL UNIQUE,
+    descripcion    TEXT,
+    fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado  TEXT
 );
 
-CREATE TABLE usuario_rol
+CREATE TABLE IF NOT EXISTS usuario
 (
-    usuario_id     BIGINT NOT NULL,
-    rol_id         BIGINT NOT NULL,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado  DATETIME NULL,
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre             TEXT    NOT NULL,
+    email              TEXT    NOT NULL UNIQUE,
+    password           TEXT    NOT NULL,
+    entidad_emisora_id INTEGER,
+    activo             INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0, 1)),
+    fecha_creacion     TEXT    DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado      TEXT,
+
+    FOREIGN KEY (entidad_emisora_id) REFERENCES entidad_emisora (id)
+);
+
+CREATE TABLE IF NOT EXISTS usuario_rol
+(
+    usuario_id     INTEGER NOT NULL,
+    rol_id         INTEGER NOT NULL,
+    fecha_creacion TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado  TEXT,
 
     PRIMARY KEY (usuario_id, rol_id),
 
@@ -32,61 +47,48 @@ CREATE TABLE usuario_rol
     FOREIGN KEY (rol_id) REFERENCES rol (id)
 );
 
-CREATE TABLE registro_blockchain
+CREATE TABLE IF NOT EXISTS documento
 (
-    id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
-    documento_id       BIGINT       NOT NULL,
-    hash_documento     VARCHAR(64)  NOT NULL,
-    direccion_contrato VARCHAR(255) NOT NULL,
-    transaction_hash   VARCHAR(100) NULL,
-    estado             VARCHAR(30)  NOT NULL,
-    bloque_number      BIGINT,
-    fecha_creacion     DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado      DATETIME NULL,
-
-    FOREIGN KEY (documento_id) REFERENCES documento (id)
-);
-
-CREATE TABLE documento
-(
-    id                        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre                    VARCHAR(255) NOT NULL,
+    id                        INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre                    TEXT NOT NULL,
     descripcion               TEXT,
-    tipo                      VARCHAR(100),
-    ruta_archivo              VARCHAR(500) NOT NULL,
-    hash                      VARCHAR(64)  NULL,
-    estado                    VARCHAR(30)  NOT NULL,
-    contenido                 LONGBLOB  NOT NULL,
-    fecha_creacion            DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_registro_blockchain DATETIME NULL,
-    transaction_hash          VARCHAR(100) NULL,
-    fecha_borrado             DATETIME NULL,
-
-    emisor_id                 BIGINT       NOT NULL,
+    tipo                      TEXT,
+    ruta_archivo              TEXT NOT NULL,
+    hash                      TEXT,
+    estado                    TEXT NOT NULL,
+    contenido                 BLOB,
+    fecha_creacion            TEXT DEFAULT CURRENT_TIMESTAMP,
+    fecha_registro_blockchain TEXT,
+    transaction_hash          TEXT,
+    fecha_borrado             TEXT,
+    emisor_id                 INTEGER NOT NULL,
 
     FOREIGN KEY (emisor_id) REFERENCES usuario (id)
 );
 
-CREATE TABLE auditoria
+CREATE TABLE IF NOT EXISTS registro_blockchain
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id    BIGINT,
-    accion        VARCHAR(100) NOT NULL,
-    descripcion   TEXT,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado DATETIME NULL,
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    documento_id       INTEGER NOT NULL,
+    hash_documento     TEXT    NOT NULL,
+    direccion_contrato TEXT,
+    transaction_hash   TEXT,
+    estado             TEXT    NOT NULL,
+    bloque_number      INTEGER,
+    fecha_creacion     TEXT    DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado      TEXT,
 
-    FOREIGN KEY (usuario_id) REFERENCES usuario (id)
+    FOREIGN KEY (documento_id) REFERENCES documento (id)
 );
 
+CREATE TABLE IF NOT EXISTS auditoria
+(
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id     INTEGER,
+    accion         TEXT NOT NULL,
+    descripcion    TEXT,
+    fecha_creacion TEXT DEFAULT CURRENT_TIMESTAMP,
+    fecha_borrado  TEXT,
 
-CREATE TABLE entidad_emisora (
-
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre         VARCHAR(150) NOT NULL,
-    private_key    VARCHAR(255) NOT NULL UNIQUE,
-    address        VARCHAR(255) NOT NULL UNIQUE,
-    activo         BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_borrado  TIMESTAMP NULL
+    FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 );

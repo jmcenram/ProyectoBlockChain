@@ -4,6 +4,7 @@ import es.jmcenram.blockchain.controller.login.Session;
 import es.jmcenram.blockchain.controller.utils.AvisosUtil;
 import es.jmcenram.blockchain.model.documento.Documento;
 import es.jmcenram.blockchain.model.documento.EstadoDocumento;
+import es.jmcenram.blockchain.model.mensaje.ResultadoDocumento;
 import es.jmcenram.blockchain.model.registroblockchain.EstadoBlockchain;
 import es.jmcenram.blockchain.model.registroblockchain.RegistroBlockchain;
 import es.jmcenram.blockchain.model.usuario.Usuario;
@@ -21,6 +22,7 @@ import es.jmcenram.blockchain.service.blockchain.BlockchainService;
 import es.jmcenram.blockchain.util.Messages;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -44,7 +46,9 @@ import java.awt.Desktop;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.*;
@@ -72,6 +76,9 @@ import java.util.concurrent.*;
  */
 public class DocumentoController {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @FXML
     private TextField txtNombre;
     @FXML
@@ -91,7 +98,7 @@ public class DocumentoController {
     @FXML
     private TableColumn<Documento, String> colRuta;
     @FXML
-    private TableColumn<Documento, Void> colAcciones;
+    private TableColumn<Documento, Documento> colAcciones;
     @FXML
     private StackPane root;
     @FXML
@@ -123,6 +130,11 @@ public class DocumentoController {
     private Usuario usuarioActual;
     private List<File> archivosSeleccionados;
     private boolean conectado;
+
+    private static class ResultadoCreacionDocumentos {
+        private int creados;
+        private final List<String> duplicados = new ArrayList<>();
+    }
 
     // Cola para el blockchain(Procesos pesados)
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -411,7 +423,7 @@ public class DocumentoController {
             return;
         }
 
-        Task<Void> task = new Task<>() {
+        Task<ResultadoCreacionDocumentos> task = new Task<>() {
             /**
              * Ejecuta trabajo pesado de documentos fuera del hilo de JavaFX.
              *
@@ -420,32 +432,53 @@ public class DocumentoController {
              * @return resultado calculado a partir de la operacion documentada
              */
             @Override
-            protected Void call() {
+            protected ResultadoCreacionDocumentos call() {
+                ResultadoCreacionDocumentos resumen = new ResultadoCreacionDocumentos();
 
                 for (File archivo : archivosSeleccionados) {
 
                     Documento doc = new Documento();
                     doc.setNombre(archivo.getName());
 
-                    documentoService.crearDocumentoCompletoConArchivo(
+                    ResultadoDocumento resultado = documentoService.crearDocumentoCompletoConArchivo(
                             doc, archivo, usuarioActual
                     );
+
+                    if (resultado.isDuplicado()) {
+                        resumen.duplicados.add(archivo.getName());
+                    } else {
+                        resumen.creados++;
+                    }
                 }
 
-                return null;
+                return resumen;
             }
         };
 
         task.setOnRunning(e -> mostrarLoading(Messages.getString("creating_documents")));
         task.setOnSucceeded(e -> {
             ocultarLoading();
-            AvisosUtil.mostrarInfo(
-                    archivosSeleccionados.size() + " " + Messages.getString("documents_created")
-            );
+            ResultadoCreacionDocumentos resumen = task.getValue();
+
+            if (resumen.creados > 0) {
+                AvisosUtil.mostrarInfo(
+                        resumen.creados + " " + Messages.getString("documents_created")
+                );
+            }
+
+            if (!resumen.duplicados.isEmpty()) {
+                AvisosUtil.mostrarAlerta(
+                        Messages.getString("duplicate_document"),
+                        Messages.getString("duplicate_documents_skipped") + "\n" +
+                                String.join("\n", resumen.duplicados)
+                );
+            }
 
             txtNombre.clear();
             archivosSeleccionados = null;
-            cargarDocumentos();
+            if (resumen.creados > 0) {
+                cargarDocumentos();
+            }
         });
 
         task.setOnFailed(e -> {
@@ -475,10 +508,7 @@ public class DocumentoController {
                 new SimpleStringProperty(d.getValue().getNombre()));
 
         colFecha.setCellValueFactory(d ->
-                new SimpleStringProperty(
-                        d.getValue().getFechaCreacion()
-                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                ));
+                new SimpleStringProperty(formatFecha(d.getValue().getFechaCreacion())));
 
         colHash.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().getHash()));
@@ -494,6 +524,9 @@ public class DocumentoController {
 
         colRuta.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().getRutaArchivo()));
+
+        colAcciones.setCellValueFactory(d ->
+                new ReadOnlyObjectWrapper<>(d.getValue()));
 
         // =========================
         // =========================
@@ -587,12 +620,30 @@ public class DocumentoController {
                     b.setStyle("-fx-font-size: 11px;");
                 }
 
-                btnVer.setOnAction(e -> verDocumento(getDoc()));
-                btnDescargar.setOnAction(e -> descargarDocumento(getDoc()));
-                btnValidar.setOnAction(e -> validarDocumento(getDoc()));
-                btnBlockchain.setOnAction(e -> registrarBlockchain(getDoc()));
-                btnRevocar.setOnAction(e -> revocarDocumento(getDoc()));
-                btnEliminar.setOnAction(e -> eliminarDocumento(getDoc()));
+                btnVer.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) verDocumento(doc);
+                });
+                btnDescargar.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) descargarDocumento(doc);
+                });
+                btnValidar.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) validarDocumento(doc);
+                });
+                btnBlockchain.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) registrarBlockchain(doc);
+                });
+                btnRevocar.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) revocarDocumento(doc);
+                });
+                btnEliminar.setOnAction(e -> {
+                    Documento doc = getDoc();
+                    if (doc != null) eliminarDocumento(doc);
+                });
             }
 
             /**
@@ -603,9 +654,8 @@ public class DocumentoController {
              * @return resultado calculado a partir de la operacion documentada
              */
             private Documento getDoc() {
-                int index = getIndex();
-                if (index < 0 || index >= getTableView().getItems().size()) return null;
-                return getTableView().getItems().get(index);
+                TableRow<Documento> row = getTableRow();
+                return row == null || row.isEmpty() ? null : row.getItem();
             }
 
             /**
@@ -613,20 +663,17 @@ public class DocumentoController {
              *
              * El metodo limpia estados visuales cuando la celda queda vacia y aplica el formato o acciones solo cuando hay datos reales.
              *
-             * @param item valor que JavaFX entrega a la celda durante su refresco
+             * @param doc documento que JavaFX entrega a la celda durante su refresco
              * @param empty indica si la celda no tiene contenido asociado
              */
             @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
+            protected void updateItem(Documento doc, boolean empty) {
+                super.updateItem(doc, empty);
 
                 setText(null);
                 setGraphic(null);
 
-                if (empty || getIndex() >= getTableView().getItems().size()) return;
-
-                Documento doc = getDoc();
-                if (doc == null) return;
+                if (empty || doc == null) return;
 
                 if (doc.isProcesando()) {
                     reset();
@@ -1034,12 +1081,16 @@ public class DocumentoController {
                     .filter(r -> contratoActual.equalsIgnoreCase(r.getDireccionContrato()))
                     .max(Comparator.comparing(RegistroBlockchain::getFechaCreacion))
                     .map(r -> r.getFechaCreacion()
-                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                            .format(DATE_TIME_FORMATTER))
                     .orElse("-");
 
         } catch (Exception e) {
             return "-";
         }
+    }
+
+    private String formatFecha(LocalDateTime fecha) {
+        return fecha == null ? "-" : fecha.format(DATE_TIME_FORMATTER);
     }
 
     /**
@@ -1185,9 +1236,12 @@ public class DocumentoController {
 
         documentosOriginales = documentoService.obtenerTodosConRegistros();
 
-        tablaDocumentos.setItems(
-                FXCollections.observableArrayList(documentosOriginales)
-        );
+        mostrarDocumentos(documentosOriginales);
+    }
+
+    private void mostrarDocumentos(List<Documento> documentos) {
+        tablaDocumentos.setItems(FXCollections.observableArrayList(documentos));
+        tablaDocumentos.refresh();
     }
 
     /**
@@ -1279,8 +1333,8 @@ public class DocumentoController {
                         return false;
 
                     if (fecha != null) {
-                        LocalDate fechaDoc = doc.getFechaCreacion().toLocalDate();
-                        if (!fechaDoc.equals(fecha))
+                        LocalDateTime fechaDoc = doc.getFechaCreacion();
+                        if (fechaDoc == null || !fechaDoc.toLocalDate().equals(fecha))
                             return false;
                     }
 
@@ -1298,7 +1352,7 @@ public class DocumentoController {
                 })
                 .toList();
 
-        tablaDocumentos.setItems(FXCollections.observableArrayList(filtrados));
+        mostrarDocumentos(filtrados);
     }
 
     /**
@@ -1316,7 +1370,7 @@ public class DocumentoController {
         filtroEstado.setValue(null);
         filtroEstadoBlockchain.setValue(null);
 
-        tablaDocumentos.setItems(FXCollections.observableArrayList(documentosOriginales));
+        mostrarDocumentos(documentosOriginales);
     }
 
     /**

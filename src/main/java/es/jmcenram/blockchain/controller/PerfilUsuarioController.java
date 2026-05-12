@@ -122,7 +122,7 @@ public class PerfilUsuarioController {
             if (!txtNueva.getText().isBlank()) {
 
                 if (!esPasswordSegura(txtNueva.getText())) {
-                    AvisosUtil.mostrarError(Messages.getString("password_requirements"));
+                    AvisosUtil.mostrarError(Messages.getString("insecure_password"));
                     return;
                 }
 

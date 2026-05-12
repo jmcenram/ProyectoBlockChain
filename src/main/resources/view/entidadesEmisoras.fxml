@@ -79,10 +79,6 @@
                 <!-- BOTONES -->
                 <HBox spacing="10" alignment="CENTER_RIGHT">
 
-                    <Button text="%delete"
-                            onAction="#eliminar"
-                            styleClass="btn-secondary"/>
-
                     <Button text="%save"
                             onAction="#guardar"
                             styleClass="btn-primary"/>

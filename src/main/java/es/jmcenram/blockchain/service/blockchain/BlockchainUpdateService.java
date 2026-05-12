@@ -77,7 +77,7 @@ public class BlockchainUpdateService {
 
             tx.commit();
 
-            System.out.println("🟢 REGISTRO ACTUALIZADO EN DB");
+            System.out.println("REGISTRO ACTUALIZADO EN DB");
 
         } catch (Exception e) {
 
@@ -133,7 +133,7 @@ public class BlockchainUpdateService {
 
             tx.commit();
 
-            System.out.println("🟠 REVOCACIÓN ACTUALIZADA EN DB");
+            System.out.println("REVOCACION ACTUALIZADA EN DB");
 
         } catch (Exception e) {
 

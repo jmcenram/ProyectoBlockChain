@@ -12,7 +12,6 @@ import es.jmcenram.blockchain.service.blockchain.BlockchainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
@@ -89,28 +88,90 @@ class DocumentoServiceTest {
     void testCrearDocumentoCompletoConArchivo_Success() throws Exception {
         // Given
         Documento documento = new Documento();
-        File file = mock(File.class);
-        when(file.getAbsolutePath()).thenReturn("/path/to/file");
+        Path path = Files.createTempFile("documento-service", ".txt");
+        Files.write(path, "content".getBytes());
+        File file = path.toFile();
 
         Usuario usuario = new Usuario();
         when(documentoRepository.save(any(Documento.class))).thenReturn(documento);
         when(auditoriaRepo.save(any())).thenReturn(null);
 
-        // Mock Files.readAllBytes statically
-        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
-            filesMock.when(() -> Files.readAllBytes(any(Path.class))).thenReturn("content".getBytes());
-
+        try {
             // When
             ResultadoDocumento result = documentoService.crearDocumentoCompletoConArchivo(documento, file, usuario);
 
             // Then
             assertNotNull(result);
             assertEquals(documento, result.getDocumento());
+            assertFalse(result.isDuplicado());
             assertEquals(EstadoDocumento.BORRADOR, documento.getEstado());
+            assertNotNull(documento.getHash());
+            assertEquals(64, documento.getHash().length());
+            verify(documentoRepository).findByHash(documento.getHash());
             verify(documentoRepository).save(any(Documento.class));
             verify(auditoriaRepo).save(any());
+        } finally {
+            Files.deleteIfExists(path);
         }
     }
 
-    // Additional tests can be added for validarDocumento, etc.
+    @Test
+    void testCrearDocumentoCompletoConArchivo_DuplicadoNoGuarda() throws Exception {
+        // Given
+        Documento documento = new Documento();
+        Documento existente = new Documento();
+        existente.setId(1L);
+
+        Path path = Files.createTempFile("documento-service-duplicado", ".txt");
+        Files.write(path, "content".getBytes());
+        File file = path.toFile();
+
+        Usuario usuario = new Usuario();
+        when(documentoRepository.findByHash(anyString())).thenReturn(existente);
+
+        try {
+            // When
+            ResultadoDocumento result = documentoService.crearDocumentoCompletoConArchivo(documento, file, usuario);
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.isDuplicado());
+            assertEquals(existente, result.getDocumento());
+            verify(documentoRepository, never()).save(any(Documento.class));
+            verify(auditoriaRepo, never()).save(any());
+        } finally {
+            Files.deleteIfExists(path);
+        }
+    }
+
+    @Test
+    void testCrearDocumentoCompletoConArchivo_DuplicadoLegacySinHashNoGuarda() throws Exception {
+        // Given
+        Documento documento = new Documento();
+        Documento existente = new Documento();
+        existente.setId(1L);
+        existente.setContenido("content".getBytes());
+
+        Path path = Files.createTempFile("documento-service-legacy", ".txt");
+        Files.write(path, "content".getBytes());
+        File file = path.toFile();
+
+        Usuario usuario = new Usuario();
+        when(documentoRepository.findByHash(anyString())).thenReturn(null);
+        when(documentoRepository.findSinHash()).thenReturn(List.of(existente));
+
+        try {
+            // When
+            ResultadoDocumento result = documentoService.crearDocumentoCompletoConArchivo(documento, file, usuario);
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.isDuplicado());
+            assertEquals(existente, result.getDocumento());
+            verify(documentoRepository, never()).save(any(Documento.class));
+            verify(auditoriaRepo, never()).save(any());
+        } finally {
+            Files.deleteIfExists(path);
+        }
+    }
 }

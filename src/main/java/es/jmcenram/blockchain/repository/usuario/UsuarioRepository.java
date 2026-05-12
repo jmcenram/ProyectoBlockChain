@@ -7,6 +7,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.List;
+
 /**
  * Repositorio especializado para operaciones de Usuario.
  * Extiende BaseRepository&lt;Usuario&gt; con métodos personalizados para búsquedas y autenticación.
@@ -46,14 +48,14 @@ public class UsuarioRepository extends BaseRepository<Usuario> {
         try {
             return em.createQuery(
                             """
-                            SELECT u FROM Usuario u
+                            SELECT DISTINCT u FROM Usuario u
                             LEFT JOIN FETCH u.roles ur
                             LEFT JOIN FETCH ur.rol
-                            WHERE u.email = :email AND u.fechaBorrado IS NULL
+                            WHERE LOWER(u.email) = LOWER(:email) AND u.fechaBorrado IS NULL
                             """,
                             Usuario.class
                     )
-                    .setParameter("email", email)
+                    .setParameter("email", email.trim())
                     .getSingleResult();
 
         } catch (Exception e) {
@@ -142,6 +144,143 @@ public class UsuarioRepository extends BaseRepository<Usuario> {
 
             if (tx.isActive()) tx.rollback();
             throw e;
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Desactiva un usuario sin eliminarlo físicamente.
+     * Cambia el estado activo a false.
+     *
+     * @param userId ID del usuario a desactivar
+     * @throws RuntimeException si el usuario no existe
+     */
+    public void desactivarUsuario(Long userId) {
+
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+            tx.begin();
+
+            Usuario usuario = em.find(Usuario.class, userId);
+            if (usuario == null) {
+                throw new RuntimeException("Usuario no encontrado");
+            }
+
+            usuario.setActivo(false);
+            em.merge(usuario);
+
+            tx.commit();
+
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Activa un usuario previamente desactivado.
+     * Cambia el estado activo a true.
+     *
+     * @param userId ID del usuario a activar
+     * @throws RuntimeException si el usuario no existe
+     */
+    public void activarUsuario(Long userId) {
+
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+            tx.begin();
+
+            Usuario usuario = em.find(Usuario.class, userId);
+            if (usuario == null) {
+                throw new RuntimeException("Usuario no encontrado");
+            }
+
+            usuario.setActivo(true);
+            em.merge(usuario);
+
+            tx.commit();
+
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca usuarios por su nombre (búsqueda parcial, case-insensitive).
+     *
+     * @param nombreParcial parte del nombre a buscar
+     * @return lista de usuarios que coinciden
+     */
+    public List<Usuario> findByNombreContains(String nombreParcial) {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT u FROM Usuario u WHERE LOWER(u.nombre) LIKE LOWER(:nombre) AND u.fechaBorrado IS NULL",
+                    Usuario.class
+            )
+                    .setParameter("nombre", "%" + nombreParcial + "%")
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca todos los usuarios activos de una entidad emisora específica.
+     *
+     * @param entidadEmisoraId ID de la entidad emisora
+     * @return lista de usuarios activos de la entidad
+     */
+    public List<Usuario> findByEntidadEmisoraAndActivo(Long entidadEmisoraId) {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT u FROM Usuario u WHERE u.entidadEmisora.id = :entidadId AND u.activo = true AND u.fechaBorrado IS NULL",
+                    Usuario.class
+            )
+                    .setParameter("entidadId", entidadEmisoraId)
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca todos los usuarios que tienen un rol específico.
+     *
+     * @param rolId ID del rol
+     * @return lista de usuarios con ese rol
+     */
+    public List<Usuario> findByRol(Long rolId) {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT u FROM Usuario u " +
+                            "INNER JOIN u.roles ur " +
+                            "WHERE ur.rol.id = :rolId AND u.fechaBorrado IS NULL",
+                    Usuario.class
+            )
+                    .setParameter("rolId", rolId)
+                    .getResultList();
 
         } finally {
             em.close();

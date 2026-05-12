@@ -153,9 +153,9 @@ public class Main extends Application {
 
         stage.setScene(scene);
         stage.setWidth(890);
-        stage.setHeight(620);
+        stage.setHeight(680);
         stage.setMinWidth(890);
-        stage.setMinHeight(620);
+        stage.setMinHeight(680);
         stage.setTitle("BlockchainApp");
 
         stage.centerOnScreen();
@@ -237,7 +237,7 @@ public class Main extends Application {
             double dy = e.getScreenY() - startY[0];
 
             double minW = 890;
-            double minH = 620;
+            double minH = 680;
 
             if (currentCursor.equals(E_RESIZE)) {
                 double newW = startW[0] + dx;

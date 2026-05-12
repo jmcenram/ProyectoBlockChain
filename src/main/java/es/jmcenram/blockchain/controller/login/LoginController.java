@@ -2,6 +2,8 @@ package es.jmcenram.blockchain.controller.login;
 
 import es.jmcenram.blockchain.controller.LayoutController;
 import es.jmcenram.blockchain.controller.utils.AvisosUtil;
+import es.jmcenram.blockchain.config.BlockchainConfig;
+import es.jmcenram.blockchain.config.ConfigManager;
 import es.jmcenram.blockchain.model.usuario.Usuario;
 import es.jmcenram.blockchain.repository.rol.RolRepository;
 import es.jmcenram.blockchain.repository.usuario.UsuarioRepository;
@@ -382,6 +384,10 @@ public class LoginController {
     private void irAQr() {
 
         try {
+            if (!contratoConfigurado()) {
+                mostrarError(Messages.getString("qr_contract_not_configured"));
+                return;
+            }
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/view/verificacionQr.fxml")
@@ -405,7 +411,22 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             mostrarError(Messages.getString("internal_navigation_error"));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            mostrarError(Messages.getString("qr_contract_not_configured"));
         }
+    }
+
+    /**
+     * Comprueba si hay contrato blockchain configurado antes de permitir generar QR.
+     *
+     * @return true si existe una direccion de contrato no vacia
+     */
+    private boolean contratoConfigurado() {
+        BlockchainConfig config = ConfigManager.load();
+        String contractAddress = config.getContractAddress();
+
+        return contractAddress != null && !contractAddress.isBlank();
     }
 
 
@@ -440,11 +461,14 @@ public class LoginController {
 
     }
 
-    private boolean esAdminEntidadActiva(Usuario usuario){
-        boolean esAdmin = usuario.getRoles().stream()
+    private boolean esAdminEntidadActiva(Usuario usuario) {
+        boolean esAdmin = usuario != null
+                && usuario.getRoles() != null
+                && usuario.getRoles().stream()
                 .filter(ur -> ur.getRol() != null)
                 .anyMatch(ur -> ADMIN.equalsIgnoreCase(ur.getRol().getNombre()));
 
-        return !esAdmin || usuario.getEntidadEmisora().getActivo();
+        return !esAdmin || (usuario.getEntidadEmisora() != null
+                && Boolean.TRUE.equals(usuario.getEntidadEmisora().getActivo()));
     }
 }

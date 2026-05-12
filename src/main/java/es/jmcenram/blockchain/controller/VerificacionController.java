@@ -85,7 +85,7 @@ public class VerificacionController {
      * 4. Obtiene la dirección del contrato desde configuración
      * 5. Busca el registro blockchain más reciente del documento
      * 6. Verifica el estado del documento (válido, revocado, etc.)
-     * 7. Muestra el resultado en lblResultado con emoji descriptivo
+     * 7. Muestra el resultado en lblResultado
      *
       * Estados posibles:
       * - Documento válido: encontrado en blockchain y estado activo
@@ -99,7 +99,7 @@ public class VerificacionController {
     @FXML
     private void validarDocumento() {
         if (archivoSeleccionado == null) {
-            lblResultado.setText("Selecciona un archivo");
+            lblResultado.setText(Messages.getString("select_file_required"));
             return;
         }
 
@@ -109,7 +109,7 @@ public class VerificacionController {
             Documento doc = documentoService.buscarPorHash(hash);
 
             if (doc == null) {
-                lblResultado.setText("⚠️ No registrado en el sistema");
+                lblResultado.setText(Messages.getString("document_not_registered_system"));
                 return;
             }
 
@@ -120,19 +120,19 @@ public class VerificacionController {
             RegistroBlockchain registro = obtenerUltimoRegistroValido(doc, contratoActual);
 
             if (registro == null) {
-                lblResultado.setText("⚠️ No registrado en blockchain (contrato actual)");
+                lblResultado.setText(Messages.getString("document_not_registered_blockchain"));
                 return;
             }
 
             if (registro.getEstado() == EstadoBlockchain.REVOCADO) {
-                lblResultado.setText("❌ Documento revocado");
+                lblResultado.setText(Messages.getString("verification_document_revoked"));
                 return;
             }
 
-            lblResultado.setText("✅ Documento válido");
+            lblResultado.setText(Messages.getString("verification_document_valid"));
 
         } catch (Exception e) {
-            lblResultado.setText("❌ Error al validar");
+            lblResultado.setText(Messages.getString("document_validation_error"));
         }
     }
 

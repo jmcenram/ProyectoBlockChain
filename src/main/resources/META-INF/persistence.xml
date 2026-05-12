@@ -1,19 +1,24 @@
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence"
              version="3.0">
 
-    <persistence-unit name="blockchainPU">
+    <persistence-unit name="blockchainPU" transaction-type="RESOURCE_LOCAL">
+        <class>es.jmcenram.blockchain.config.SQLiteLocalDateTimeConverter</class>
+        <class>es.jmcenram.blockchain.model.auditoria.Auditoria</class>
+        <class>es.jmcenram.blockchain.model.documento.Documento</class>
+        <class>es.jmcenram.blockchain.model.entidademisora.EntidadEmisora</class>
+        <class>es.jmcenram.blockchain.model.registroblockchain.RegistroBlockchain</class>
+        <class>es.jmcenram.blockchain.model.rol.Rol</class>
         <class>es.jmcenram.blockchain.model.usuario.Usuario</class>
+        <class>es.jmcenram.blockchain.model.usuariorol.UsuarioRol</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
 
         <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-            <property name="jakarta.persistence.jdbc.url"
-                      value="jdbc:mysql://localhost:3306/blockchain?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC"/>
-            <property name="jakarta.persistence.jdbc.user" value="root"/>
-            <property name="jakarta.persistence.jdbc.password" value="ekt9Dl1cyNfXz94mhBm9"/>
-
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+            <property name="hibernate.connection.provider_class"
+                      value="es.jmcenram.blockchain.connection.SQLiteConnectionProvider"/>
+            <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
             <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>

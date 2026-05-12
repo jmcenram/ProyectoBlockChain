@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -104,10 +105,21 @@ public class DocumentoService extends BaseService<Documento> {
     ) {
         try {
             byte[] contenido = Files.readAllBytes(file.toPath());
+            String hash = hashService.generarHash(contenido);
+            Documento existente = buscarDocumentoDuplicado(hash, documento.getId());
+
+            if (existente != null) {
+                ResultadoDocumento resultado = new ResultadoDocumento();
+                resultado.setDocumento(existente);
+                resultado.setDuplicado(true);
+                resultado.setMensaje("Documento duplicado");
+                return resultado;
+            }
+
             documento.setContenido(contenido);
             documento.setRutaArchivo(file.getAbsolutePath());
 
-            documento.setHash(null);
+            documento.setHash(hash);
             documento.setEstado(EstadoDocumento.BORRADOR);
             documento.setEmisor(usuario);
 
@@ -147,6 +159,11 @@ public class DocumentoService extends BaseService<Documento> {
         }
 
         String hash = hashService.generarHash(documento.getContenido());
+        Documento existente = buscarDocumentoDuplicado(hash, documento.getId());
+
+        if (existente != null) {
+            throw new RuntimeException("Documento duplicado");
+        }
 
         documento.setHash(hash);
         documento.setEstado(EstadoDocumento.VALIDADO);
@@ -259,7 +276,7 @@ public class DocumentoService extends BaseService<Documento> {
         blockchainService.revocarHashAsync(documento.getHash(), usuario.getEntidadEmisora().getPrivateKeyDecrypted())
                 .thenAccept(txHash -> {
 
-                    System.out.println("🟠 REVOCADO TX: " + txHash);
+                    System.out.println("REVOCADO TX: " + txHash);
 
                     try {
                         updateService.actualizarRevocacion(
@@ -286,7 +303,7 @@ public class DocumentoService extends BaseService<Documento> {
                 })
                 .exceptionally(ex -> {
 
-                    System.out.println("❌ ERROR REVOCAR");
+                    System.out.println("ERROR REVOCAR");
                     ex.printStackTrace();
 
                     updateService.marcarError(registroId);
@@ -345,6 +362,30 @@ public class DocumentoService extends BaseService<Documento> {
      */
     public Documento buscarPorHash(String hash) {
         return ((DocumentoRepository) repository).findByHash(hash);
+    }
+
+    private Documento buscarDocumentoDuplicado(String hash, Long documentoActualId) {
+        Documento existente = buscarPorHash(hash);
+
+        if (existente != null) {
+            if (documentoActualId != null && Objects.equals(existente.getId(), documentoActualId)) {
+                return null;
+            }
+
+            return existente;
+        }
+
+        List<Documento> documentosSinHash = ((DocumentoRepository) repository).findSinHash();
+        if (documentosSinHash == null || documentosSinHash.isEmpty()) {
+            return null;
+        }
+
+        return documentosSinHash.stream()
+                .filter(doc -> documentoActualId == null || !Objects.equals(doc.getId(), documentoActualId))
+                .filter(doc -> doc.getContenido() != null)
+                .filter(doc -> hash.equals(hashService.generarHash(doc.getContenido())))
+                .findFirst()
+                .orElse(null);
     }
 
     /**

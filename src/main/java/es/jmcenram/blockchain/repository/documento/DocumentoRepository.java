@@ -101,4 +101,125 @@ public class DocumentoRepository extends BaseRepository<Documento> {
             em.close();
         }
     }
+
+    /**
+     * Obtiene documentos activos que todavia no tienen hash persistido.
+     *
+     * Se usa para detectar duplicados de documentos creados antes de que el hash
+     * se calculara en el alta.
+     *
+     * @return documentos activos sin hash
+     */
+    public List<Documento> findSinHash() {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT d FROM Documento d " +
+                            "WHERE (d.hash IS NULL OR d.hash = '') " +
+                            "AND d.fechaBorrado IS NULL",
+                    Documento.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca todos los documentos por su estado.
+     * Útil para filtrar documentos pendientes, registrados, etc.
+     *
+     * @param estado estado del documento a buscar
+     * @return lista de documentos con el estado especificado
+     */
+    public List<Documento> findByEstado(String estado) {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT d FROM Documento d " +
+                            "WHERE d.estado = :estado " +
+                            "AND d.fechaBorrado IS NULL",
+                    Documento.class
+            )
+                    .setParameter("estado", estado)
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca todos los documentos pendientes de registrar en blockchain.
+     * (estado = PENDIENTE)
+     *
+     * @return lista de documentos pendientes
+     */
+    public List<Documento> findPendientes() {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT d FROM Documento d " +
+                            "WHERE d.estado = 'PENDIENTE' " +
+                            "AND d.fechaBorrado IS NULL",
+                    Documento.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca todos los documentos emitidos por un usuario específico.
+     *
+     * @param usuarioId ID del usuario emisor
+     * @return lista de documentos del usuario
+     */
+    public List<Documento> findByEmisor(Long usuarioId) {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT d FROM Documento d " +
+                            "WHERE d.emisor.id = :usuarioId " +
+                            "AND d.fechaBorrado IS NULL",
+                    Documento.class
+            )
+                    .setParameter("usuarioId", usuarioId)
+                    .getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Busca documentos registrados en blockchain (con transaction_hash válido).
+     *
+     * @return lista de documentos registrados
+     */
+    public List<Documento> findRegistrados() {
+
+        EntityManager em = getEntityManager();
+
+        try {
+            return em.createQuery(
+                    "SELECT d FROM Documento d " +
+                            "WHERE d.transactionHash IS NOT NULL " +
+                            "AND d.fechaBorrado IS NULL",
+                    Documento.class
+            ).getResultList();
+
+        } finally {
+            em.close();
+        }
+    }
 }

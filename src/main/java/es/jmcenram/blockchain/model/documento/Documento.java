@@ -104,8 +104,7 @@ public class Documento extends EntidadBase {
      *
      * Se almacena como BLOB en base de datos.
      */
-    @Lob
-    @Column(name = "contenido", columnDefinition = "LONGBLOB")
+    @Column(name = "contenido")
     private byte[] contenido;
 
     /**

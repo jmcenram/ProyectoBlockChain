@@ -95,7 +95,7 @@ public class BlockchainService {
                     web3j,
                     new RawTransactionManager(
                             web3j,
-                            Credentials.create("0x0"), // dummy
+                            Credentials.create("0x0"),
                             11155111
                     ),
                     new StaticGasProvider(
@@ -104,7 +104,7 @@ public class BlockchainService {
                     )
             );
 
-            System.out.println("📄 Contrato cargado: " + contrato.getContractAddress());
+            System.out.println("Contrato cargado: " + contrato.getContractAddress());
 
         } catch (Exception e) {
             throw new RuntimeException("Error inicializando BlockchainService", e);
